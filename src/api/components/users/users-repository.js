@@ -4,8 +4,34 @@ const { User } = require('../../../models');
  * Get a list of users
  * @returns {Promise}
  */
-async function getUsers() {
-  return User.find({});
+async function getUsers(sort) {
+  let sorting = {};
+  let sorts;
+
+  const [fieldName, sortOrder] = sort.split(':');
+
+  if (fieldName === 'email') {
+    if (sortOrder === 'desc') {
+      sorting['email'] = -1;
+      sorts = User.find({}).sort(sorting);
+    } else {
+      sorting['email'] = 1;
+      sorts = User.find({}).sort(sorting);
+    }
+  } else if (fieldName === 'name') {
+    if (sortOrder === 'desc') {
+      sorting['name'] = -1;
+      sorts = User.find({}).sort(sorting);
+    } else {
+      sorting['name'] = 1;
+      sorts = User.find({}).sort(sorting);
+    }
+  } else {
+    sorting['email'] = 1;
+    sorts = User.find({}).sort(sorting);
+  }
+
+  return sorts;
 }
 
 /**
