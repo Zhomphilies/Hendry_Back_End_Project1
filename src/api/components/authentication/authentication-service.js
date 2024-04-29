@@ -1,9 +1,7 @@
 const authenticationRepository = require('./authentication-repository');
 const { generateToken } = require('../../../utils/session-token');
 const { passwordMatched } = require('../../../utils/password');
-const { Authentication } = require('../../../models');
-const { set } = require('lodash');
-const { timeLogin } = require('../../../models/authentication-schema');
+const moment = require('moment');
 
 // We define default user password here as '<RANDOM_PASSWORD_FILTER>'
 // to handle the case when the user login is invalid. We still want to
@@ -62,11 +60,20 @@ const { timeLogin } = require('../../../models/authentication-schema');
 async function checkLoginCredentials(email, password) {
   const user = await authenticationRepository.getUserByEmail(email);
   let attempt = 0;
-  let counterLimit;
+  let counterLimit = 0;
   let timeLogin = await time();
 
   const userPassword = user ? user.password : '<RANDOM_PASSWORD_FILLER>';
   const passwordChecked = await passwordMatched(password, userPassword);
+  const currAttempt = await authenticationRepository.getLoginAttempt(email);
+
+  if (currAttempt >= 5) {
+    const waitingTime = moment(timeLogin).add(30, 'm');
+    if (waitingTime - time() !== 0) {
+      return null;
+    }
+    return null;
+  }
 
   if (user && passwordChecked) {
     counterLimit = 0;
@@ -83,16 +90,12 @@ async function checkLoginCredentials(email, password) {
       name: user.name,
       user_id: user.id,
       token: generateToken(user.email, user.id),
-      attempt: counterLimit,
-      timeLogin: timeLogin,
     };
   } else {
-    const currAttempt = await authenticationRepository.getLoginAttempt(email);
-
     attempt = 1;
+    counterLimit = currAttempt + attempt;
     const createAuthentication =
       authenticationRepository.createAuthenticationByEmail(email, counterLimit);
-    counterLimit = currAttempt + attempt;
     await authenticationRepository.setLoginAttempt(
       email,
       counterLimit,
@@ -106,25 +109,8 @@ async function checkLoginCredentials(email, password) {
   }
 }
 
-async function setTime(attempt, timeLogin) {
-  if (currAttempt > 5) {
-    const waitingTime = time().getMinutes() + 30;
-
-    if (timeLogin - waitingTime) {
-    }
-  }
-}
-
 async function time() {
-  const currTime = new Date();
-  const year = currTime.getFullYear();
-  const month = ('0' + (currTime.getMonth() + 1)).slice(-2);
-  const day = ('0' + currTime.getDate()).slice(-2);
-  const hour = ('0' + currTime.getHours()).slice(-2);
-  const minute = ('0' + currTime.getMinutes()).slice(-2);
-  const second = ('0' + currTime.getSeconds()).slice(-2);
-  const time = `[${year}-${month}-${day} ${hour}:${minute}:${second}]`;
-  return time;
+  return moment().toDate();
 }
 
 module.exports = {
