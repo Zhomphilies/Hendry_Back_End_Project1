@@ -16,7 +16,7 @@ db.once('open', () => {
   logger.info('Successfully connected to MongoDB');
 });
 
-const seller = mongoose.model('seller', mongoose.Schema(sellerSchema));
+const Seller = mongoose.model('seller', mongoose.Schema(sellerSchema));
 const Product = mongoose.model('product', mongoose.Schema(productSchema));
 const User = mongoose.model('users', mongoose.Schema(usersSchema));
 const Authentication = mongoose.model(
@@ -25,7 +25,7 @@ const Authentication = mongoose.model(
 );
 
 module.exports = {
-  seller,
+  Seller,
   mongoose,
   User,
   Authentication,
