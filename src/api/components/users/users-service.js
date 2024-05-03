@@ -1,14 +1,18 @@
 const usersRepository = require('./users-repository');
 const { hashPassword, passwordMatched } = require('../../../utils/password');
-const { number } = require('joi');
 
 /**
  * Get list of users
- * @returns {Array}
+ * @param {Number} pageNum - Halaman
+ * @param {Number} pageSize - Ukuran dari sebuah halaman
+ * @param {String} Search - Mencari email atau name
+ * @param {String} Sort - Mengurutkan data berdasarkan email atau name
+ * @returns {Object}
  */
 async function getUsers(pageNum, pageSize, search, sort) {
   const users = await usersRepository.getUsers(sort);
 
+  // Bagian ini digunakan untuk menampilkan memasukkan data ke dalam array
   const results = [];
   for (let i = 0; i < users.length; i += 1) {
     const user = users[i];
@@ -25,8 +29,15 @@ async function getUsers(pageNum, pageSize, search, sort) {
   return printOut2;
 }
 
-// Revisi untuk get users by page {black}
+//====================================================================================================
 
+/**
+ * Get list of users
+ * @param {Array} data - array dari sebelumnya
+ * @param {Number} pageNum - Halaman
+ * @param {Number} pageSize - Ukuran dari sebuah halaman
+ * @returns {Array}
+ */
 async function getUsersByPage(data, pageNum, pageSize) {
   let temp = [];
 
@@ -35,36 +46,31 @@ async function getUsersByPage(data, pageNum, pageSize) {
     pageSize = data.length;
   }
 
-  // Bagian ini digunakan untuk mengumpulkan variable
+  // Bagian ini digunakan untuk mendapatkan total halaman
   const totalPage = Math.ceil(data.length / pageSize);
+
   let count;
   let prevPage;
   let nextPage;
 
   // Bagian ini digunakan untuk mengecek kondisi
   if (!Number.isInteger(pageNum) && pageNum !== null) {
-    return null;
+    return 5;
   }
   if (!Number.isInteger(pageSize)) {
-    return null;
+    return 4;
   }
   if (pageNum <= 0 && pageNum !== null) {
-    return null;
+    return 3;
   }
   if (pageSize <= 0) {
-    return null;
+    return 2;
   }
   if (pageNum > totalPage) {
     return 1;
   }
 
-  // Bagian ini adalah bagian yang kondisinya pageNum == null
-  // if (pageNum === null) {
-  //   pageNum = 1;
-  //   for (let i = 0; i < data.length; i++) {
-  //     temp.push(data[i]);
-  //   }
-  // }
+  // Bagian ini digunaknan untuk menampilkan data jika tidak ada pageNum
   if (pageNum === null) {
     const result = [];
     for (let j = 1; j <= totalPage; j++) {
@@ -78,7 +84,7 @@ async function getUsersByPage(data, pageNum, pageSize) {
       count = temp.length;
       if (totalPage === 1) {
         nextPage = false;
-        prevPage = true;
+        prevPage = false;
       } else if (totalPage !== 1 && j === 1) {
         nextPage = true;
         prevPage = false;
@@ -120,7 +126,7 @@ async function getUsersByPage(data, pageNum, pageSize) {
 
   if (totalPage === 1) {
     nextPage = false;
-    prevPage = true;
+    prevPage = false;
   } else if (totalPage !== 1 && pageNum === 1) {
     nextPage = true;
     prevPage = false;
@@ -148,105 +154,8 @@ async function getUsersByPage(data, pageNum, pageSize) {
     data: temp,
   };
 }
-// Revisi {black}
 
-// START {yellow}
-
-// async function getUsersByPage(resultsO, pageNum, pageSize) {
-//   if (pageSize === null) {
-//     pageSize = resultsO.length;
-//   }
-
-//   if (!Number.isInteger(pageNum) || !Number.isInteger(pageSize)) {
-//     if (pageNum !== null) {
-//       return 1;
-//     }
-//   }
-
-//   const totalPage = Math.ceil(resultsO.length / pageSize);
-//   let prevPage;
-//   let nextPage;
-//   let results = [];
-
-//   if (pageNum === null) {
-//     const allPage = [];
-
-//     for (let j = 1; j <= totalPage; j++) {
-//       for (let i = (j - 1) * pageSize; i < j * pageSize; i++) {
-//         if (i >= resultsO.length) {
-//           break;
-//         }
-//         results.push(resultsO[i]);
-//       }
-
-//       if (pageNum > 1) {
-//         prevPage = false;
-//         nextPage = true;
-//       } else if (pageNum - (totalPage - 1) === 1) {
-//         prevPage = false;
-//         nextPage = true;
-//       } else {
-//         prevPage = true;
-//         nextPage = true;
-//       }
-
-//       allPage[j] = {
-//         page_number: j,
-//         page_size: pageSize,
-//         count: results.length,
-//         total_pages: totalPage,
-//         has_previous_page: prevPage,
-//         has_next_page: nextPage,
-//         results: results,
-//       };
-//     }
-//     return allPage;
-//   }
-
-//   if (pageNum <= 0) {
-//     return 2;
-//   }
-
-//   if (pageNum > totalPage) {
-//     return 3;
-//   }
-
-//   if (pageSize <= 0) {
-//     return 4;
-//   }
-
-//   if (pageNum > 1) {
-//     prevPage = false;
-//     nextPage = true;
-//   } else if (pageNum - (totalPage - 1) === 1) {
-//     prevPage = true;
-//     nextPage = false;
-//   } else {
-//     prevPage = true;
-//     nextPage = true;
-//   }
-
-//   for (let i = (pageNum - 1) * pageSize; i < pageNum * pageSize; i++) {
-//     if (i >= resultsO.length) {
-//       break;
-//     }
-//     results.push(resultsO[i]);
-//   }
-
-//   return {
-//     page_number: pageNum,
-//     page_size: pageSize,
-//     count: results.length,
-//     total_pages: totalPage,
-//     has_previous_page: prevPage,
-//     has_next_page: nextPage,
-//     results: results,
-//   };
-// }
-
-// END {yellow}
-
-// START {red}
+//====================================================================================================
 
 async function getUsersBySearch(data, search) {
   const temp = [];
@@ -291,7 +200,7 @@ async function getUsersBySearch(data, search) {
   return temp;
 }
 
-// END {red}
+//====================================================================================================
 
 /**
  * Get user detail
@@ -313,6 +222,8 @@ async function getUser(id) {
   };
 }
 
+//====================================================================================================
+
 /**
  * Create new user
  * @param {string} name - Name
@@ -332,6 +243,8 @@ async function createUser(name, email, password) {
 
   return true;
 }
+
+//====================================================================================================
 
 /**
  * Update existing user
@@ -357,6 +270,8 @@ async function updateUser(id, name, email) {
   return true;
 }
 
+//====================================================================================================
+
 /**
  * Delete user
  * @param {string} id - User ID
@@ -379,6 +294,8 @@ async function deleteUser(id) {
   return true;
 }
 
+//====================================================================================================
+
 /**
  * Check whether the email is registered
  * @param {string} email - Email
@@ -394,6 +311,8 @@ async function emailIsRegistered(email) {
   return false;
 }
 
+//====================================================================================================
+
 /**
  * Check whether the password is correct
  * @param {string} userId - User ID
@@ -404,6 +323,8 @@ async function checkPassword(userId, password) {
   const user = await usersRepository.getUser(userId);
   return passwordMatched(password, user.password);
 }
+
+//====================================================================================================
 
 /**
  * Change user password
@@ -432,6 +353,8 @@ async function changePassword(userId, password) {
 
   return true;
 }
+
+//====================================================================================================
 
 module.exports = {
   getUsers,

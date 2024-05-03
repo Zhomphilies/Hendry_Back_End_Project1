@@ -1,4 +1,5 @@
 const authenticationRepository = require('./authentication-repository');
+const { errorResponder, errorTypes } = require('../../../core/errors');
 const { generateToken } = require('../../../utils/session-token');
 const { passwordMatched } = require('../../../utils/password');
 const moment = require('moment');
@@ -12,45 +13,6 @@ const moment = require('moment');
 // login attempt as successful when the `user` is found (by email) and
 // the password matches.
 
-// /**
-//  * Check username and password for login.
-//  * @param {string} email - Email
-//  * @param {string} password - Password
-//  * @returns {object} An object containing, among others, the JWT token if the email and password are matched. Otherwise returns null.
-//  */
-// async function checkLoginCredentials(email, password) {
-//   const user = await authenticationRepository.getUserByEmail(email);
-//   const createAuthentication =
-//     await authenticationRepository.createAuthenticationByEmail(email);
-
-//   const userPassword = user ? user.password : '<RANDOM_PASSWORD_FILLER>';
-//   const passwordChecked = await passwordMatched(password, userPassword);
-
-//   if (user && passwordChecked) {
-//     let totalAttempt = 0;
-//     authenticationRepository.setLimit(email, totalAttempt);
-//     return {
-//       email: user.email,
-//       name: user.name,
-//       user_id: user.id,
-//       token: generateToken(user.email, user.id),
-//       attempt: totalAttempt,
-//     };
-//   } else {
-//     let attempt = await authenticationRepository.getLimit(email);
-//     let totalAttempt = attempt + 1;
-//     authenticationRepository.setLimit(email, totalAttempt);
-//     return {
-//       email: user.email,
-//       attempt: totalAttempt,
-//     };
-//   }
-// }
-
-// module.exports = {
-//   checkLoginCredentials,
-// };
-
 /**
  * Check username and password for login.
  * @param {string} email - Email
@@ -59,20 +21,34 @@ const moment = require('moment');
  */
 async function checkLoginCredentials(email, password) {
   const user = await authenticationRepository.getUserByEmail(email);
+
+  if (!user) {
+    return false;
+  }
+
   let attempt = 0;
   let counterLimit = 0;
-  let timeLogin = await time();
+  const currLoginTime = moment(
+    await authenticationRepository.getLoginTime(email)
+  ).toDate();
+  let timeLogin = moment().toDate();
 
   const userPassword = user ? user.password : '<RANDOM_PASSWORD_FILLER>';
   const passwordChecked = await passwordMatched(password, userPassword);
   const currAttempt = await authenticationRepository.getLoginAttempt(email);
 
   if (currAttempt >= 5) {
-    const waitingTime = moment(timeLogin).add(30, 'm');
-    if (waitingTime - time() !== 0) {
-      return null;
+    const waitingTime = moment(currLoginTime).add(30, 'm').toDate();
+    if (waitingTime - timeLogin > 0) {
+      throw errorResponder(
+        errorTypes.INVALID_CREDENTIALS,
+        'Forbidden: Too many failed login attempts'
+      );
+    } else {
+      attempt = 0;
+      await authenticationRepository.setLoginAttempt(email, attempt, timeLogin);
+      return 'bisa mencoba login kembali karena sudah lebih dari 30 menit sejak pengenaan limit. Attempt di-reset kembali ke 0';
     }
-    return null;
   }
 
   if (user && passwordChecked) {
@@ -101,16 +77,8 @@ async function checkLoginCredentials(email, password) {
       counterLimit,
       timeLogin
     );
-    return {
-      email: email,
-      attempt: counterLimit,
-      timeLogin: timeLogin,
-    };
+    return `${timeLogin} User ${email} gagal login. Attempt = ${counterLimit}`;
   }
-}
-
-async function time() {
-  return moment().toDate();
 }
 
 module.exports = {

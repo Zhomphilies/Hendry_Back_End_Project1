@@ -1,66 +1,7 @@
-// const { attempt } = require('joi');
-// const { User, Authentication } = require('../../../models');
-
-// /**
-//  * Get user by email for login information
-//  * @param {string} email - Email
-//  * @returns {Promise}
-//  */
-// async function getUserByEmail(email) {
-//   return User.findOne({ email });
-// }
-
-// async function getAuthenticationByEmail(email) {
-//   return Authentication.findOne({ email });
-// }
-
-// async function createAuthenticationByEmail(email) {
-//   const createAuthentication = await getAuthenticationByEmail(email);
-//   if (!createAuthentication) {
-//     return Authentication.create({ email });
-//   }
-// }
-
-// // async function getLimit(email) {
-// //   const limit = await getAuthenticationByEmail(email);
-// //   if (limit !== null) {
-// //     return 0;
-// //   } else {
-// //     return limit.attempt;
-// //   }
-// // }
-
-// async function getLimit(email) {
-//   const limit = await getAuthenticationByEmail(email);
-//   if (limit !== null) {
-//     return 0;
-//   } else {
-//     return limit.attempt;
-//   }
-// }
-
-// async function setLimit(email, attempt) {
-//   return Authentication.updateOne(
-//     {
-//       _email: email,
-//     },
-//     {
-//       $set: {
-//         attempt,
-//       },
-//     }
-//   );
-// }
-// module.exports = {
-//   getUserByEmail,
-//   createAuthenticationByEmail,
-//   getLimit,
-//   setLimit,
-// };
-
 const { attempt } = require('joi');
 const { User, Authentication } = require('../../../models');
 const { create } = require('lodash');
+const { timeLogin } = require('../../../models/authentication-schema');
 
 /**
  * Get user by email for login information
@@ -115,10 +56,20 @@ async function setLoginAttempt(email, attempt, timeLogin) {
   );
 }
 
+async function getLoginTime(email) {
+  const get = await Authentication.findOne({ email });
+  if (get) {
+    return get.timeLogin;
+  } else {
+    return 0;
+  }
+}
+
 module.exports = {
   getUserByEmail,
   getAuthenticationByEmail,
   createAuthenticationByEmail,
   getLoginAttempt,
   setLoginAttempt,
+  getLoginTime,
 };

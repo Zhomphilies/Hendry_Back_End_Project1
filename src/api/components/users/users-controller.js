@@ -13,7 +13,7 @@ async function getUsers(request, response, next) {
     const pageNumber = parseInt(request.query.page_number) || null;
     const pageSize = parseInt(request.query.page_size) || null;
     const search = request.query.search;
-    const sort = request.query.sort || null;
+    const sort = request.query.sort || 'email:asc';
 
     const users = await usersService.getUsers(
       pageNumber,
@@ -21,6 +21,10 @@ async function getUsers(request, response, next) {
       search,
       sort
     );
+
+    if (!users) {
+      throw errorResponder(errorTypes.VALIDATION, 'Invalid query');
+    }
 
     return response.status(200).json(users);
   } catch (error) {

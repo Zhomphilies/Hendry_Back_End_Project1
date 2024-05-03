@@ -1,15 +1,20 @@
 const { User } = require('../../../models');
 
+//====================================================================================================
+
 /**
  * Get a list of users
+ * @param {string} sort - sorting type
  * @returns {Promise}
  */
 async function getUsers(sort) {
   let sorting = {};
   let sorts;
 
+  // Bagian ini digunakan untuk memisahkan "filedName" dan "sortOrder"
   const [fieldName, sortOrder] = sort.split(':');
 
+  // Bagian ini digunakan untuk menyorting data berdasarkan email secara "desc" ataupun "asc"
   if (fieldName === 'email') {
     if (sortOrder === 'desc') {
       sorting['email'] = -1;
@@ -18,7 +23,9 @@ async function getUsers(sort) {
       sorting['email'] = 1;
       sorts = User.find({}).sort(sorting);
     }
-  } else if (fieldName === 'name') {
+  }
+  // Bagian ini digunakan untuk menyorting data berdasarkan name secara "desc" ataupun "asc"
+  else if (fieldName === 'name') {
     if (sortOrder === 'desc') {
       sorting['name'] = -1;
       sorts = User.find({}).sort(sorting);
@@ -27,12 +34,15 @@ async function getUsers(sort) {
       sorts = User.find({}).sort(sorting);
     }
   } else {
+    // Bagian ini digunakan unutk membuat default sort ketika sort tidak ditentukan
     sorting['email'] = 1;
     sorts = User.find({}).sort(sorting);
   }
 
   return sorts;
 }
+
+//====================================================================================================
 
 /**
  * Get user detail
@@ -42,6 +52,8 @@ async function getUsers(sort) {
 async function getUser(id) {
   return User.findById(id);
 }
+
+//====================================================================================================
 
 /**
  * Create new user
@@ -57,6 +69,8 @@ async function createUser(name, email, password) {
     password,
   });
 }
+
+//====================================================================================================
 
 /**
  * Update existing user
@@ -79,6 +93,8 @@ async function updateUser(id, name, email) {
   );
 }
 
+//====================================================================================================
+
 /**
  * Delete a user
  * @param {string} id - User ID
@@ -87,6 +103,8 @@ async function updateUser(id, name, email) {
 async function deleteUser(id) {
   return User.deleteOne({ _id: id });
 }
+
+//====================================================================================================
 
 /**
  * Get user by email to prevent duplicate email
@@ -97,6 +115,8 @@ async function getUserByEmail(email) {
   return User.findOne({ email });
 }
 
+//====================================================================================================
+
 /**
  * Update user password
  * @param {string} id - User ID
@@ -106,6 +126,8 @@ async function getUserByEmail(email) {
 async function changePassword(id, password) {
   return User.updateOne({ _id: id }, { $set: { password } });
 }
+
+//====================================================================================================
 
 module.exports = {
   getUsers,
