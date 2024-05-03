@@ -8,9 +8,9 @@ const { errorResponder, errorTypes } = require('../../../core/errors');
  * @param {object} next - Express route middlewares
  * @returns {object} Response object or pass an error to the next route
  */
-async function getProducts(request, response, next) {
+async function getProduct(request, response, next) {
   try {
-    const product = await usersService.getProducts();
+    const product = await productService.getProduct();
 
     if (!product) {
       throw errorResponder(errorTypes.VALIDATION, 'Invalid query');
@@ -38,7 +38,7 @@ async function getProductDetail(request, response, next) {
     const product = await productService.getProductDetail(id);
 
     if (!product) {
-      throw errorResponder(errorTypes.UNPROCESSABLE_ENTITY, 'Unknown user');
+      throw errorResponder(errorTypes.UNPROCESSABLE_ENTITY, 'Unknown product');
     }
 
     return response.status(200).json(product);
@@ -62,11 +62,11 @@ async function createProduct(request, response, next) {
     const productName = request.body.productName;
     const productPrice = request.body.productPrice;
 
-    const user = await productService.getEmail(sellerEmail);
-    if (user === null) {
+    const product = await productService.getEmail(sellerEmail);
+    if (product === null) {
       throw errorResponder(
         errorTypes.UNPROCESSABLE_ENTITY,
-        'Failed to create user'
+        'Failed to create product'
       );
     }
 
@@ -78,7 +78,7 @@ async function createProduct(request, response, next) {
     if (!success) {
       throw errorResponder(
         errorTypes.UNPROCESSABLE_ENTITY,
-        'Failed to create user'
+        'Failed to create product'
       );
     }
 
@@ -106,7 +106,7 @@ async function updateProduct(request, response, next) {
     const productName = request.body.productName;
     const productPrice = request.body.productPrice;
 
-    const success = await usersService.updateUser(
+    const success = await productService.updateProduct(
       id,
       productName,
       productPrice
@@ -114,7 +114,7 @@ async function updateProduct(request, response, next) {
     if (!success) {
       throw errorResponder(
         errorTypes.UNPROCESSABLE_ENTITY,
-        'Failed to update user'
+        'Failed to update product'
       );
     }
 
@@ -141,7 +141,7 @@ async function deleteProduct(request, response, next) {
     if (!success) {
       throw errorResponder(
         errorTypes.UNPROCESSABLE_ENTITY,
-        'Failed to delete user'
+        'Failed to delete product'
       );
     }
 
@@ -154,7 +154,7 @@ async function deleteProduct(request, response, next) {
 //====================================================================================================
 
 module.exports = {
-  getProducts,
+  getProduct,
   getProductDetail,
   createProduct,
   updateProduct,

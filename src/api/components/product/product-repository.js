@@ -16,7 +16,7 @@ async function getEmail(sellerEmail) {
  * @param {string} id - Product ID
  * @returns {Promise}
  */
-async function getProducts() {
+async function getProduct() {
   return Product.find({});
 }
 
@@ -78,7 +78,7 @@ async function updateProduct(id, productName, productPrice) {
  * @param {string} id - Product ID
  * @returns {Promise}
  */
-async function deleteUser(id) {
+async function deleteProduct(id) {
   return Product.deleteOne({ _id: id });
 }
 
@@ -86,9 +86,9 @@ async function deleteUser(id) {
 
 module.exports = {
   getEmail,
-  getProducts,
+  getProduct,
   getProductDetail,
   createProduct,
   updateProduct,
-  deleteUser,
+  deleteProduct,
 };

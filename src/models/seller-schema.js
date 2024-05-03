@@ -1,7 +1,7 @@
 const sellerSchema = {
-  sellerName: String,
-  sellerEmail: String,
-  sellerPassword: String,
+  name: String,
+  email: String,
+  password: String,
 };
 
 module.exports = sellerSchema;

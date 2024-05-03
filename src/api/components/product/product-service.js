@@ -8,9 +8,9 @@ const productRepository = require('./product-repository');
  * @returns {boolean}
  */
 async function getEmail(sellerEmail) {
-  const userEmail = productRepository.getEmail(sellerEmail);
+  const SellerEmail = productRepository.getEmail(sellerEmail);
 
-  if (!userEmail) {
+  if (!SellerEmail) {
     return null;
   }
 
@@ -23,8 +23,8 @@ async function getEmail(sellerEmail) {
  * Get list of products
  * @returns {Array}
  */
-async function getProducts() {
-  const products = await productRepository.getProducts();
+async function getProduct() {
+  const products = await productRepository.getProduct();
 
   const results = [];
   for (let i = 0; i < products.length; i += 1) {
@@ -120,7 +120,7 @@ async function updateProduct(id, productName, productPrice) {
  * @returns {boolean}
  */
 async function deleteProduct(id) {
-  const product = await productRepository.getProductById(id);
+  const product = await productRepository.getProductDetail(id);
 
   // Product not found
   if (!product) {
@@ -140,8 +140,7 @@ async function deleteProduct(id) {
 
 module.exports = {
   getEmail,
-
-  getProducts,
+  getProduct,
   getProductDetail,
   createProduct,
   updateProduct,

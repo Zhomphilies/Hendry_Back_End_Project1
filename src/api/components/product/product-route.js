@@ -11,7 +11,7 @@ module.exports = (app) => {
   app.use('/product', route);
 
   // Get list of product
-  route.get('/', authenticationMiddleware, productControllers.getProducts);
+  route.get('/', authenticationMiddleware, productControllers.getProduct);
 
   // Create product
   route.post(
@@ -25,7 +25,7 @@ module.exports = (app) => {
   route.get(
     '/:id',
     authenticationMiddleware,
-    productControllers.getProductById
+    productControllers.getProductDetail
   );
 
   // Update product
