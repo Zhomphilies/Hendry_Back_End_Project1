@@ -1,7 +1,7 @@
 const express = require('express');
 
-const authenticationMiddleware = require('../../middlewares/authentication-middleware');
-const celebrate = require('../../../core/celebrate-wrappers');
+const authenticationMiddleware = require('../../../middlewares/authentication-middleware');
+const celebrate = require('../../../../core/celebrate-wrappers');
 const sellerControllers = require('./seller-controller');
 const sellerValidator = require('./seller-validator');
 

@@ -1,4 +1,4 @@
-const { Seller } = require('../../../models');
+const { Seller } = require('../../../../models');
 
 //====================================================================================================
 
@@ -81,7 +81,7 @@ async function deleteSeller(id) {
  * @returns {Promise}
  */
 async function getSellerByEmail(email) {
-  const getSeller = await Seller.findOne({ email });
+  return Seller.findOne({ email });
 }
 
 //====================================================================================================

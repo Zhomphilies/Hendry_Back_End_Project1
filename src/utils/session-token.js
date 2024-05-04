@@ -22,6 +22,11 @@ function generateToken(email, userId) {
   );
 }
 
+function solveToken(token) {
+  return jwt.verify(token, config.secret.jwt);
+}
+
 module.exports = {
   generateToken,
+  solveToken,
 };

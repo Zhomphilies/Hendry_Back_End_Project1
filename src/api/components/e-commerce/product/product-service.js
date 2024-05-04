@@ -7,14 +7,14 @@ const productRepository = require('./product-repository');
  * @param {Number} productPrice - Product price
  * @returns {boolean}
  */
-async function getEmail(sellerEmail) {
-  const SellerEmail = productRepository.getEmail(sellerEmail);
+async function getSellerByEmail(sellerEmail) {
+  const email = await productRepository.getSellerByEmail(sellerEmail);
 
-  if (!SellerEmail) {
-    return null;
+  if (email) {
+    return true;
   }
 
-  return true;
+  return false;
 }
 
 //====================================================================================================
@@ -31,6 +31,7 @@ async function getProduct() {
     const product = products[i];
     results.push({
       id: product.id,
+      sellerEmail: product.sellerEmail,
       productName: product.productName,
       productPrice: product.productPrice,
     });
@@ -56,6 +57,7 @@ async function getProductDetail(id) {
 
   return {
     id: product.id,
+    sellerEmail: product.sellerEmail,
     productName: product.productName,
     productPrice: product.productPrice,
   };
@@ -95,7 +97,7 @@ async function createProduct(sellerEmail, productName, productPrice) {
  * @returns {boolean}
  */
 
-async function updateProduct(id, productName, productPrice) {
+async function updateProduct(id, sellerEmail, productName, productPrice) {
   const product = await productRepository.getProductDetail(id);
 
   // Product not found
@@ -104,7 +106,12 @@ async function updateProduct(id, productName, productPrice) {
   }
 
   try {
-    await productRepository.updateProduct(id, productName, productPrice);
+    await productRepository.updateProduct(
+      id,
+      sellerEmail,
+      productName,
+      productPrice
+    );
   } catch (err) {
     return null;
   }
@@ -119,7 +126,7 @@ async function updateProduct(id, productName, productPrice) {
  * @param {string} id - Product ID
  * @returns {boolean}
  */
-async function deleteProduct(id) {
+async function deleteProduct(id, sellerEmail) {
   const product = await productRepository.getProductDetail(id);
 
   // Product not found
@@ -128,7 +135,7 @@ async function deleteProduct(id) {
   }
 
   try {
-    await productRepository.deleteProduct(id);
+    await productRepository.deleteProduct(id, sellerEmail);
   } catch (err) {
     return null;
   }
@@ -139,7 +146,7 @@ async function deleteProduct(id) {
 //====================================================================================================
 
 module.exports = {
-  getEmail,
+  getSellerByEmail,
   getProduct,
   getProductDetail,
   createProduct,

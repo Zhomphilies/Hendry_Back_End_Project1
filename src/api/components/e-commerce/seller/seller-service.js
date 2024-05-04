@@ -1,5 +1,5 @@
 const sellerRepository = require('./seller-repository');
-const { hashPassword, passwordMatched } = require('../../../utils/password');
+const { hashPassword, passwordMatched } = require('../../../../utils/password');
 
 /**
  * Get list of sellers

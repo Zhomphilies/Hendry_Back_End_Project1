@@ -1,5 +1,6 @@
 const productService = require('./product-service');
-const { errorResponder, errorTypes } = require('../../../core/errors');
+const { errorResponder, errorTypes } = require('../../../../core/errors');
+const { solveToken } = require('../../../../utils/session-token');
 
 /**
  * Handle get list of products request
@@ -61,12 +62,21 @@ async function createProduct(request, response, next) {
     const sellerEmail = request.body.sellerEmail;
     const productName = request.body.productName;
     const productPrice = request.body.productPrice;
+    const token = request.headers.authorization.split(' ')[1];
 
-    const product = await productService.getEmail(sellerEmail);
-    if (product === null) {
+    const found = await productService.getSellerByEmail(sellerEmail);
+    if (!found) {
       throw errorResponder(
         errorTypes.UNPROCESSABLE_ENTITY,
         'Failed to create product'
+      );
+    }
+
+    const tokenCheck = await solveToken(token);
+    if (tokenCheck.email !== sellerEmail) {
+      throw errorResponder(
+        errorTypes.UNPROCESSABLE_ENTITY,
+        'Failed to create produc'
       );
     }
 
@@ -102,12 +112,30 @@ async function createProduct(request, response, next) {
 async function updateProduct(request, response, next) {
   try {
     const id = request.params.id;
-
+    const sellerEmail = request.body.sellerEmail;
     const productName = request.body.productName;
     const productPrice = request.body.productPrice;
+    const token = request.headers.authorization.split(' ')[1];
+
+    const found = await productService.getSellerByEmail(sellerEmail);
+    if (!found) {
+      throw errorResponder(
+        errorTypes.UNPROCESSABLE_ENTITY,
+        'Failed to create product'
+      );
+    }
+
+    const tokenCheck = await solveToken(token);
+    if (tokenCheck.email !== sellerEmail) {
+      throw errorResponder(
+        errorTypes.UNPROCESSABLE_ENTITY,
+        'Failed to create produc'
+      );
+    }
 
     const success = await productService.updateProduct(
       id,
+      sellerEmail,
       productName,
       productPrice
     );
@@ -136,8 +164,26 @@ async function updateProduct(request, response, next) {
 async function deleteProduct(request, response, next) {
   try {
     const id = request.params.id;
+    const sellerEmail = request.body.sellerEmail;
+    const token = request.headers.authorization.split(' ')[1];
 
-    const success = await productService.deleteProduct(id);
+    const found = await productService.getSellerByEmail(sellerEmail);
+    if (!found) {
+      throw errorResponder(
+        errorTypes.UNPROCESSABLE_ENTITY,
+        'Failed to create product'
+      );
+    }
+
+    const tokenCheck = await solveToken(token);
+    if (tokenCheck.email !== sellerEmail) {
+      throw errorResponder(
+        errorTypes.UNPROCESSABLE_ENTITY,
+        'Failed to create produc'
+      );
+    }
+
+    const success = await productService.deleteProduct(id, sellerEmail);
     if (!success) {
       throw errorResponder(
         errorTypes.UNPROCESSABLE_ENTITY,

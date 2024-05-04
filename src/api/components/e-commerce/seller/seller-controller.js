@@ -1,5 +1,5 @@
 const sellerService = require('./seller-service');
-const { errorResponder, errorTypes } = require('../../../core/errors');
+const { errorResponder, errorTypes } = require('../../../../core/errors');
 
 /**
  * Handle get list of seller request

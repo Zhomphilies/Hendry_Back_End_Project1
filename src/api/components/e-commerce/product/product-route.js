@@ -1,7 +1,7 @@
 const express = require('express');
 
-const authenticationMiddleware = require('../../middlewares/authentication-middleware');
-const celebrate = require('../../../core/celebrate-wrappers');
+const authenticationMiddleware = require('../../../middlewares/authentication-middleware');
+const celebrate = require('../../../../core/celebrate-wrappers');
 const productControllers = require('./product-controller');
 const productValidator = require('./product-validator');
 

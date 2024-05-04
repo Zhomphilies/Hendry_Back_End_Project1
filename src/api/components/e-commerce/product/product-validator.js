@@ -1,5 +1,4 @@
 const joi = require('joi');
-const { productName } = require('../../../models/product-schema');
 
 module.exports = {
   createProduct: {

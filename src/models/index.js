@@ -2,10 +2,12 @@ const mongoose = require('mongoose');
 const config = require('../core/config');
 const logger = require('../core/logger')('app');
 
+const sellerAuthenticationSchema = require('./seller-authentication-schema');
 const sellerSchema = require('./seller-schema');
+const productSchema = require('./product-schema');
+
 const usersSchema = require('./users-schema');
 const authenticationSchema = require('./authentication-schema');
-const productSchema = require('./product-schema');
 
 mongoose.connect(`${config.database.connection}/${config.database.name}`, {
   useNewUrlParser: true,
@@ -16,6 +18,10 @@ db.once('open', () => {
   logger.info('Successfully connected to MongoDB');
 });
 
+const SellerAuthentication = mongoose.model(
+  'seller authentication',
+  mongoose.Schema(sellerAuthenticationSchema)
+);
 const Seller = mongoose.model('seller', mongoose.Schema(sellerSchema));
 const Product = mongoose.model('product', mongoose.Schema(productSchema));
 const User = mongoose.model('users', mongoose.Schema(usersSchema));
@@ -25,6 +31,7 @@ const Authentication = mongoose.model(
 );
 
 module.exports = {
+  SellerAuthentication,
   Seller,
   mongoose,
   User,
