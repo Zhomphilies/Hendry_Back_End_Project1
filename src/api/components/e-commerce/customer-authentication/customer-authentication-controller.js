@@ -1,5 +1,5 @@
 const { errorResponder, errorTypes } = require('../../../../core/errors');
-const sellerAuthenticationServices = require('./seller-authentication-service');
+const customerAuthenticationServices = require('./customer-authentication-service');
 
 /**
  * Handle login request
@@ -14,7 +14,10 @@ async function login(request, response, next) {
   try {
     // Check login credentials
     const loginSuccess =
-      await sellerAuthenticationServices.checkLoginCredentials(email, password);
+      await customerAuthenticationServices.checkLoginCredentials(
+        email,
+        password
+      );
 
     if (!loginSuccess) {
       throw errorResponder(

@@ -2,9 +2,11 @@ const mongoose = require('mongoose');
 const config = require('../core/config');
 const logger = require('../core/logger')('app');
 
-const sellerAuthenticationSchema = require('./seller-authentication-schema');
+const customerSchema = require('./customer-schema');
 const sellerSchema = require('./seller-schema');
 const productSchema = require('./product-schema');
+const customerAuthenticationSchema = require('./customer-authentication-schema');
+const sellerAuthenticationSchema = require('./seller-authentication-schema');
 
 const usersSchema = require('./users-schema');
 const authenticationSchema = require('./authentication-schema');
@@ -18,12 +20,18 @@ db.once('open', () => {
   logger.info('Successfully connected to MongoDB');
 });
 
+const Customer = mongoose.model('customer', mongoose.Schema(customerSchema));
+const Seller = mongoose.model('seller', mongoose.Schema(sellerSchema));
+const Product = mongoose.model('product', mongoose.Schema(productSchema));
+const CustomerAuthenticationSchema = mongoose.model(
+  'customer authentication',
+  mongoose.Schema(customerAuthenticationSchema)
+);
 const SellerAuthentication = mongoose.model(
   'seller authentication',
   mongoose.Schema(sellerAuthenticationSchema)
 );
-const Seller = mongoose.model('seller', mongoose.Schema(sellerSchema));
-const Product = mongoose.model('product', mongoose.Schema(productSchema));
+
 const User = mongoose.model('users', mongoose.Schema(usersSchema));
 const Authentication = mongoose.model(
   'authentication',
@@ -31,10 +39,13 @@ const Authentication = mongoose.model(
 );
 
 module.exports = {
+  CustomerAuthenticationSchema,
+  Customer,
   SellerAuthentication,
   Seller,
+  Product,
+
   mongoose,
   User,
   Authentication,
-  Product,
 };
