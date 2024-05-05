@@ -1,5 +1,6 @@
 const customerService = require('./customer-service');
 const { errorResponder, errorTypes } = require('../../../../core/errors');
+const { solveToken } = require('../../../../utils/session-token');
 
 /**
  * Handle get list of customer request
@@ -103,6 +104,38 @@ async function updateCustomer(request, response, next) {
     const name = request.body.name;
     const email = request.body.email;
 
+    const token = request.headers.authorization.split(' ')[1];
+
+    const customer = await customerService.getCustomerDetail(id);
+    console.log(customer);
+    if (!customer) {
+      throw errorResponder(
+        errorTypes.VALIDATION_ERROR,
+        'no customer with that ID'
+      );
+    }
+
+    const customerEmail = await customerService.getCustomerEmailById(
+      customer,
+      id
+    );
+
+    const found = await customerService.emailIsRegistered(customerEmail);
+    if (!found) {
+      throw errorResponder(
+        errorTypes.UNPROCESSABLE_ENTITY,
+        'Failed to create product'
+      );
+    }
+
+    const tokenCheck = await solveToken(token);
+    if (tokenCheck.email !== customerEmail) {
+      throw errorResponder(
+        errorTypes.UNPROCESSABLE_ENTITY,
+        'Failed to create produc'
+      );
+    }
+
     // Email must be unique
     const emailIsRegistered = await customerService.emailIsRegistered(email);
     if (emailIsRegistered) {
@@ -136,6 +169,37 @@ async function updateCustomer(request, response, next) {
 async function deleteCustomer(request, response, next) {
   try {
     const id = request.params.id;
+    const token = request.headers.authorization.split(' ')[1];
+
+    const customer = await customerService.getCustomerDetail(id);
+    console.log(customer);
+    if (!customer) {
+      throw errorResponder(
+        errorTypes.VALIDATION_ERROR,
+        'no customer with that ID'
+      );
+    }
+
+    const customerEmail = await customerService.getCustomerEmailById(
+      customer,
+      id
+    );
+
+    const found = await customerService.emailIsRegistered(customerEmail);
+    if (!found) {
+      throw errorResponder(
+        errorTypes.UNPROCESSABLE_ENTITY,
+        'Failed to create product'
+      );
+    }
+
+    const tokenCheck = await solveToken(token);
+    if (tokenCheck.email !== customerEmail) {
+      throw errorResponder(
+        errorTypes.UNPROCESSABLE_ENTITY,
+        'Failed to create produc'
+      );
+    }
 
     const success = await customerService.deleteCustomer(id);
     if (!success) {
@@ -196,6 +260,121 @@ async function changeCustomerPassword(request, response, next) {
   }
 }
 
+/**
+ * Handle change customer password request
+ * @param {object} request - Express request object
+ * @param {object} response - Express response object
+ * @param {object} next - Express route middlewares
+ * @returns {object} Response object or pass an error to the next route
+ */
+async function addItemToCart(request, response, next) {
+  try {
+    const id = request.params.id;
+    const productId = request.body.product_Id;
+
+    const token = request.headers.authorization.split(' ')[1];
+
+    const customer = await customerService.getCustomerDetail(id);
+    console.log(customer);
+    if (!customer) {
+      throw errorResponder(
+        errorTypes.VALIDATION_ERROR,
+        'no customer with that ID'
+      );
+    }
+
+    const customerEmail = await customerService.getCustomerEmailById(
+      customer,
+      id
+    );
+
+    const found = await customerService.emailIsRegistered(customerEmail);
+    if (!found) {
+      throw errorResponder(
+        errorTypes.UNPROCESSABLE_ENTITY,
+        'Failed to create product'
+      );
+    }
+
+    const tokenCheck = await solveToken(token);
+    if (tokenCheck.email !== customerEmail) {
+      throw errorResponder(
+        errorTypes.UNPROCESSABLE_ENTITY,
+        'Failed to create produc'
+      );
+    }
+
+    const addItem = await customerService.addItemToCart(id, productId);
+
+    console.log(addItem);
+    if (!addItem) {
+      throw errorResponder(errorTypes.VALIDATION_ERROR, 'Failed to add item');
+    }
+    return response.status(200).json({ addItem });
+  } catch (error) {
+    return next(error);
+  }
+}
+
+/**
+ * Handle change customer password request
+ * @param {object} request - Express request object
+ * @param {object} response - Express response object
+ * @param {object} next - Express route middlewares
+ * @returns {object} Response object or pass an error to the next route
+ */
+async function deleteItemFromCart(request, response, next) {
+  try {
+    const id = request.params.id;
+    const productId = request.params.product_Id;
+
+    const token = request.headers.authorization.split(' ')[1];
+
+    const customer = await customerService.getCustomerDetail(id);
+    console.log(customer);
+    if (!customer) {
+      throw errorResponder(
+        errorTypes.VALIDATION_ERROR,
+        'no customer with that ID'
+      );
+    }
+
+    const customerEmail = await customerService.getCustomerEmailById(
+      customer,
+      id
+    );
+
+    const found = await customerService.emailIsRegistered(customerEmail);
+    if (!found) {
+      throw errorResponder(
+        errorTypes.UNPROCESSABLE_ENTITY,
+        'Failed to create product'
+      );
+    }
+
+    const tokenCheck = await solveToken(token);
+    if (tokenCheck.email !== customerEmail) {
+      throw errorResponder(
+        errorTypes.UNPROCESSABLE_ENTITY,
+        'Failed to create produc'
+      );
+    }
+
+    const deleteItem = await customerService.deleteItemFromCart(id, productId);
+
+    console.log(deleteItem);
+    if (!deleteItem) {
+      throw errorResponder(
+        errorTypes.VALIDATION_ERROR,
+        'Failed to delete item'
+      );
+    }
+    return response.status(200).json({ deleteItem });
+  } catch (error) {
+    return next(error);
+  }
+}
+
 module.exports = {
   getCustomer,
   getCustomerDetail,
@@ -203,4 +382,7 @@ module.exports = {
   updateCustomer,
   deleteCustomer,
   changeCustomerPassword,
+
+  addItemToCart,
+  deleteItemFromCart,
 };

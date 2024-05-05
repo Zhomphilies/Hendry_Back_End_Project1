@@ -50,4 +50,20 @@ module.exports = (app) => {
     celebrate(customerValidator.changeCustomerPassword),
     customerControllers.changeCustomerPassword
   );
+
+  // Add item to cart
+  route.put(
+    '/:id/cart',
+    authenticationMiddleware,
+    celebrate(customerValidator.addItemToCart),
+    customerControllers.addItemToCart
+  );
+
+  //Delete item from cart
+  route.delete(
+    '/:id/cart',
+    authenticationMiddleware,
+    celebrate(customerValidator.addItemToCart),
+    customerControllers.addItemToCart
+  );
 };

@@ -1,4 +1,4 @@
-const { Customer } = require('../../../../models');
+const { Customer, Product } = require('../../../../models');
 
 //====================================================================================================
 
@@ -98,6 +98,53 @@ async function changeCustomerPassword(id, password) {
 
 //====================================================================================================
 
+/**
+ * Add item to the cart
+ * @param {string} id - Product Id
+ * @returns {Promise}
+ */
+async function getProduct(id) {
+  return;
+}
+
+/**
+ * Add item to the cart
+ * @param {string} id - Customer Id
+ * @returns {Promise}
+ */
+async function addItemToCart(id, product) {
+  return Customer.updateOne(
+    {
+      _id: id,
+    },
+    {
+      $pull: {
+        cart: product,
+      },
+    }
+  );
+}
+
+/**
+ * Delete item in the cart
+ * @param {string} id - Product Id
+ * @returns {Promise}
+ */
+async function deleteItemFromCart(id, productId) {
+  return Customer.deleteOne(
+    {
+      _id: id,
+    },
+    {
+      $pull: {
+        cart: {
+          _id: productId,
+        },
+      },
+    }
+  );
+}
+
 module.exports = {
   getCustomer,
   getCustomerDetail,
@@ -106,4 +153,7 @@ module.exports = {
   deleteCustomer,
   getCustomerByEmail,
   changeCustomerPassword,
+
+  addItemToCart,
+  deleteItemFromCart,
 };

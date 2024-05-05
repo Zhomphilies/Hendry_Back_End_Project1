@@ -1,5 +1,6 @@
 const joi = require('joi');
 const { joiPasswordExtendCore } = require('joi-password');
+const { addItemToCart, deleteItemFromCart } = require('./customer-repository');
 const joiPassword = joi.extend(joiPasswordExtendCore);
 
 module.exports = {
@@ -46,6 +47,18 @@ module.exports = {
         .required()
         .label('New password'),
       password_confirm: joi.string().required().label('Password confirmation'),
+    },
+  },
+
+  addItemToCart: {
+    body: {
+      product_Id: joi.string().required().label('Product ID'),
+    },
+  },
+
+  deleteItemFromCart: {
+    body: {
+      product_Id: joi.string().required().label('Product ID'),
     },
   },
 };

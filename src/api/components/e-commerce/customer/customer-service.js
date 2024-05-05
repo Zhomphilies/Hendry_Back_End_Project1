@@ -1,5 +1,6 @@
 const customerRepository = require('./customer-repository');
 const { hashPassword, passwordMatched } = require('../../../../utils/password');
+const { getProductDetail } = require('../product/product-service');
 
 /**
  * Get list of customers
@@ -16,6 +17,7 @@ async function getCustomer() {
       id: customer.id,
       name: customer.name,
       email: customer.email,
+      cart: customer.cart,
     });
   }
 
@@ -42,6 +44,10 @@ async function getCustomerDetail(id) {
     name: customer.name,
     email: customer.email,
   };
+}
+
+async function getCustomerEmailById(customer, id) {
+  return customer.email;
 }
 
 //====================================================================================================
@@ -178,6 +184,38 @@ async function changeCustomerPassword(customerId, password) {
 
 //====================================================================================================
 
+async function addItemToCart(customerId, productId) {
+  const customer = await customerRepository.getCustomerDetail(customerId);
+
+  if (!customer) {
+    return null;
+  }
+
+  const product = await getProductDetail(productId);
+
+  if (!product) {
+    return 1;
+  }
+
+  try {
+    await customerRepository.addItemToCart(customerId, product);
+  } catch (err) {
+    return 2;
+  }
+
+  return true;
+}
+
+async function deleteItemFromCart(id, productId) {
+  try {
+    await customerRepository.deleteItemFromCart(id, productId);
+  } catch (err) {
+    return null;
+  }
+
+  return true;
+}
+
 module.exports = {
   getCustomer,
   getCustomerDetail,
@@ -187,4 +225,8 @@ module.exports = {
   emailIsRegistered,
   checkCustomerPassword,
   changeCustomerPassword,
+  getCustomerEmailById,
+
+  addItemToCart,
+  deleteItemFromCart,
 };
