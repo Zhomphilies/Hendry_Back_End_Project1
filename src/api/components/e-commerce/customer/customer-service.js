@@ -1,6 +1,9 @@
 const customerRepository = require('./customer-repository');
 const { hashPassword, passwordMatched } = require('../../../../utils/password');
-const { getProductDetail } = require('../product/product-service');
+const {
+  getProductDetail,
+  updateProduct,
+} = require('../product/product-service');
 
 /**
  * Get list of customers
@@ -18,6 +21,8 @@ async function getCustomer() {
       name: customer.name,
       email: customer.email,
       cart: customer.cart,
+      totalPayment: customer.totalPayment,
+      wallet: customer.wallet,
     });
   }
 
@@ -43,11 +48,22 @@ async function getCustomerDetail(id) {
     id: customer.id,
     name: customer.name,
     email: customer.email,
+    cart: customer.cart,
+    totalPayment: customer.totalPayment,
+    wallet: customer.wallet,
   };
 }
 
 async function getCustomerEmailById(customer, id) {
   return customer.email;
+}
+
+async function getCustomerTotalPayment(customer, id) {
+  return customer.totalPayment;
+}
+
+async function getProductPrice(product, id) {
+  return product.productPrice;
 }
 
 //====================================================================================================
@@ -194,13 +210,13 @@ async function addItemToCart(customerId, productId) {
   const product = await getProductDetail(productId);
 
   if (!product) {
-    return 1;
+    return null;
   }
 
   try {
     await customerRepository.addItemToCart(customerId, product);
   } catch (err) {
-    return 2;
+    return null;
   }
 
   return true;
@@ -208,9 +224,127 @@ async function addItemToCart(customerId, productId) {
 
 async function deleteItemFromCart(id, productId) {
   try {
-    await customerRepository.deleteItemFromCart(id, productId);
+    const customer = await customerRepository.getCustomerDetail(id);
+
+    if (!customer) {
+      return null;
+    }
+
+    const cart = customer.cart;
+
+    const product = await getProductDetail(productId);
+
+    if (!product) {
+      return null;
+    }
+
+    let total = 0;
+
+    const currPayment = await getCustomerTotalPayment(customer, id);
+
+    for (let i = 0; i < cart.length; i += 1) {
+      const products = cart[i];
+
+      if (products.id === productId) {
+        const productPrice = await getProductPrice(product, productId);
+
+        total = total + productPrice;
+
+        await customerRepository.deleteItemFromCart(id, productId);
+      }
+    }
+
+    const totalPayment = currPayment - total;
+
+    try {
+      await customerRepository.totalPaid(id, totalPayment);
+    } catch (err) {
+      return null;
+    }
+    return true;
   } catch (err) {
     return null;
+  }
+}
+
+async function totalPaid(id, productId) {
+  const customer = await customerRepository.getCustomerDetail(id);
+
+  if (!customer) {
+    return null;
+  }
+
+  const product = await getProductDetail(productId);
+
+  if (!product) {
+    return null;
+  }
+
+  const currPayment = await getCustomerTotalPayment(customer, id);
+  const productPrice = await getProductPrice(product, productId);
+  const totalPayment = currPayment + productPrice;
+
+  try {
+    await customerRepository.totalPaid(id, totalPayment);
+  } catch (err) {
+    return null;
+  }
+  return true;
+}
+
+async function topUp(id, wallet) {
+  const customer = await customerRepository.getCustomerDetail(id);
+
+  if (!customer) {
+    return null;
+  }
+
+  try {
+    await customerRepository.topUp(id, wallet);
+  } catch (err) {
+    return null;
+  }
+  return true;
+}
+
+async function purchaseItemInCart(id) {
+  const customer = await customerRepository.getCustomerDetail(id);
+
+  if (!customer) {
+    return null;
+  }
+
+  const totalPayment = customer.totalPayment;
+  const productInCart = customer.cart;
+
+  if (totalPayment > customer.wallet) {
+    return null;
+  } else if (totalPayment <= customer.wallet) {
+    const paid = -totalPayment;
+    await customerRepository.topUp(id, paid);
+  }
+
+  if (productInCart === null || productInCart === undefined) {
+    return null;
+  }
+
+  for (let i = 0; i < customer.cart.length; i += 1) {
+    const cartItem = customer.cart[i];
+    const product = await getProductDetail(cartItem.id);
+    await deleteItemFromCart(id, cartItem.id);
+    product.productStock = product.productStock - 1;
+
+    if (product.productStock === 0) {
+      return null;
+    }
+
+    await updateProduct(
+      cartItem.id,
+      cartItem.sellerEmail,
+      cartItem.productName,
+      cartItem.productPrice,
+      product.productStock
+    );
   }
 
   return true;
@@ -227,6 +361,9 @@ module.exports = {
   changeCustomerPassword,
   getCustomerEmailById,
 
+  purchaseItemInCart,
   addItemToCart,
   deleteItemFromCart,
+  totalPaid,
+  topUp,
 };

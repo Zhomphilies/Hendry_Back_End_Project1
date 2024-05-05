@@ -62,28 +62,30 @@ async function createProduct(request, response, next) {
     const sellerEmail = request.body.sellerEmail;
     const productName = request.body.productName;
     const productPrice = request.body.productPrice;
+    const productStock = request.body.productStock;
     const token = request.headers.authorization.split(' ')[1];
 
     const found = await productService.getSellerByEmail(sellerEmail);
     if (!found) {
       throw errorResponder(
         errorTypes.UNPROCESSABLE_ENTITY,
-        'Failed to create product'
+        'Seller email not found'
       );
     }
 
     const tokenCheck = await solveToken(token);
     if (tokenCheck.email !== sellerEmail) {
       throw errorResponder(
-        errorTypes.UNPROCESSABLE_ENTITY,
-        'Failed to create produc'
+        errorTypes.PARSE_TOKEN,
+        'Token and email is not compatible'
       );
     }
 
     const success = await productService.createProduct(
       sellerEmail,
       productName,
-      productPrice
+      productPrice,
+      productStock
     );
     if (!success) {
       throw errorResponder(
@@ -94,7 +96,7 @@ async function createProduct(request, response, next) {
 
     return response
       .status(200)
-      .json({ sellerEmail, productName, productPrice });
+      .json({ sellerEmail, productName, productPrice, productStock });
   } catch (error) {
     return next(error);
   }
@@ -115,21 +117,19 @@ async function updateProduct(request, response, next) {
     const sellerEmail = request.body.sellerEmail;
     const productName = request.body.productName;
     const productPrice = request.body.productPrice;
+    const productStock = request.body.productStock;
     const token = request.headers.authorization.split(' ')[1];
 
     const found = await productService.getSellerByEmail(sellerEmail);
     if (!found) {
-      throw errorResponder(
-        errorTypes.UNPROCESSABLE_ENTITY,
-        'Failed to create product'
-      );
+      throw errorResponder(errorTypes.NOT_FOUND, 'Seller email not found');
     }
 
     const tokenCheck = await solveToken(token);
     if (tokenCheck.email !== sellerEmail) {
       throw errorResponder(
-        errorTypes.UNPROCESSABLE_ENTITY,
-        'Failed to create produc'
+        errorTypes.PARSE_TOKEN,
+        'Token and email is not compatible'
       );
     }
 
@@ -137,7 +137,8 @@ async function updateProduct(request, response, next) {
       id,
       sellerEmail,
       productName,
-      productPrice
+      productPrice,
+      productStock
     );
     if (!success) {
       throw errorResponder(
@@ -169,17 +170,14 @@ async function deleteProduct(request, response, next) {
 
     const found = await productService.getSellerByEmail(sellerEmail);
     if (!found) {
-      throw errorResponder(
-        errorTypes.UNPROCESSABLE_ENTITY,
-        'Failed to create product'
-      );
+      throw errorResponder(errorTypes.NOT_FOUND, 'Seller email not found');
     }
 
     const tokenCheck = await solveToken(token);
     if (tokenCheck.email !== sellerEmail) {
       throw errorResponder(
-        errorTypes.UNPROCESSABLE_ENTITY,
-        'Failed to create produc'
+        errorTypes.PARSE_TOKEN,
+        'Token and email is not compatible'
       );
     }
 

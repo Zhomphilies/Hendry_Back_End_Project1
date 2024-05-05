@@ -34,6 +34,7 @@ async function getProduct() {
       sellerEmail: product.sellerEmail,
       productName: product.productName,
       productPrice: product.productPrice,
+      productStock: product.productStock,
     });
   }
 
@@ -60,6 +61,7 @@ async function getProductDetail(id) {
     sellerEmail: product.sellerEmail,
     productName: product.productName,
     productPrice: product.productPrice,
+    productStock: product.productStock,
   };
 }
 
@@ -72,12 +74,18 @@ async function getProductDetail(id) {
  * @param {Number} productPrice - Product price
  * @returns {boolean}
  */
-async function createProduct(sellerEmail, productName, productPrice) {
+async function createProduct(
+  sellerEmail,
+  productName,
+  productPrice,
+  productStock
+) {
   try {
     await productRepository.createProduct(
       sellerEmail,
       productName,
-      productPrice
+      productPrice,
+      productStock
     );
   } catch (err) {
     return null;
@@ -97,7 +105,13 @@ async function createProduct(sellerEmail, productName, productPrice) {
  * @returns {boolean}
  */
 
-async function updateProduct(id, sellerEmail, productName, productPrice) {
+async function updateProduct(
+  id,
+  sellerEmail,
+  productName,
+  productPrice,
+  productStock
+) {
   const product = await productRepository.getProductDetail(id);
 
   // Product not found
@@ -110,7 +124,8 @@ async function updateProduct(id, sellerEmail, productName, productPrice) {
       id,
       sellerEmail,
       productName,
-      productPrice
+      productPrice,
+      productStock
     );
   } catch (err) {
     return null;

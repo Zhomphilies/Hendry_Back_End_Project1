@@ -1,5 +1,6 @@
 const sellerService = require('./seller-service');
 const { errorResponder, errorTypes } = require('../../../../core/errors');
+const { solveToken } = require('../../../../utils/session-token');
 
 /**
  * Handle get list of seller request
@@ -101,6 +102,35 @@ async function updateSeller(request, response, next) {
     const name = request.body.name;
     const email = request.body.email;
 
+    const token = request.headers.authorization.split(' ')[1];
+
+    const seller = await sellerService.getSellerDetail(id);
+    console.log(seller);
+    if (!seller) {
+      throw errorResponder(
+        errorTypes.VALIDATION_ERROR,
+        'no seller with that ID'
+      );
+    }
+
+    const sellerEmail = await sellerService.getSellerEmailById(seller, id);
+
+    const found = await sellerService.emailIsRegistered(sellerEmail);
+    if (!found) {
+      throw errorResponder(
+        errorTypes.UNPROCESSABLE_ENTITY,
+        'Email is not registered'
+      );
+    }
+
+    const tokenCheck = await solveToken(token);
+    if (tokenCheck.email !== sellerEmail) {
+      throw errorResponder(
+        errorTypes.UNPROCESSABLE_ENTITY,
+        'Token and email is not compatiblev'
+      );
+    }
+
     // Email must be unique
     const emailIsRegistered = await sellerService.emailIsRegistered(email);
     if (emailIsRegistered) {
@@ -134,6 +164,35 @@ async function updateSeller(request, response, next) {
 async function deleteSeller(request, response, next) {
   try {
     const id = request.params.id;
+
+    const token = request.headers.authorization.split(' ')[1];
+
+    const seller = await sellerService.getSellerDetail(id);
+    console.log(seller);
+    if (!seller) {
+      throw errorResponder(
+        errorTypes.VALIDATION_ERROR,
+        'no seller with that ID'
+      );
+    }
+
+    const sellerEmail = await sellerService.getSellerEmailById(seller, id);
+
+    const found = await sellerService.emailIsRegistered(sellerEmail);
+    if (!found) {
+      throw errorResponder(
+        errorTypes.UNPROCESSABLE_ENTITY,
+        'Email is not registered'
+      );
+    }
+
+    const tokenCheck = await solveToken(token);
+    if (tokenCheck.email !== sellerEmail) {
+      throw errorResponder(
+        errorTypes.UNPROCESSABLE_ENTITY,
+        'Token and email is not compatiblev'
+      );
+    }
 
     const success = await sellerService.deleteSeller(id);
     if (!success) {

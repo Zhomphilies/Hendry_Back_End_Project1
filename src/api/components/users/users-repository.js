@@ -4,11 +4,11 @@ const { User } = require('../../../models');
 
 /**
  * Get a list of users
- * @param {string} sort - sorting type
+ * @param {string} sort - sorting type by asc or dsc
  * @returns {Promise}
  */
 async function getUsers(sort) {
-  let sorting = {};
+  let sortingBy = {};
   let sorts;
 
   // Bagian ini digunakan untuk memisahkan "filedName" dan "sortOrder"
@@ -17,27 +17,23 @@ async function getUsers(sort) {
   // Bagian ini digunakan untuk menyorting data berdasarkan email secara "desc" ataupun "asc"
   if (fieldName === 'email') {
     if (sortOrder === 'desc') {
-      sorting['email'] = -1;
-      sorts = User.find({}).sort(sorting);
+      sortingBy['email'] = -1;
     } else {
-      sorting['email'] = 1;
-      sorts = User.find({}).sort(sorting);
+      sortingBy['email'] = 1;
     }
   }
   // Bagian ini digunakan untuk menyorting data berdasarkan name secara "desc" ataupun "asc"
   else if (fieldName === 'name') {
     if (sortOrder === 'desc') {
-      sorting['name'] = -1;
-      sorts = User.find({}).sort(sorting);
+      sortingBy['name'] = -1;
     } else {
-      sorting['name'] = 1;
-      sorts = User.find({}).sort(sorting);
+      sortingBy['name'] = 1;
     }
   } else {
     // Bagian ini digunakan unutk membuat default sort ketika sort tidak ditentukan
-    sorting['email'] = 1;
-    sorts = User.find({}).sort(sorting);
+    sortingBy['email'] = 1;
   }
+  sorts = User.find({}).sort(sortingBy);
 
   return sorts;
 }

@@ -3,6 +3,8 @@ const customerSchema = {
   email: String,
   password: String,
   cart: Object,
+  totalPayment: Number,
+  wallet: Number,
 };
 
 module.exports = customerSchema;

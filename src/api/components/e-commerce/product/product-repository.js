@@ -1,7 +1,7 @@
 const { Seller, Product } = require('../../../../models');
 
 /**
- * Get products
+ * Get Seller
  * @param {string} email - seller email
  * @returns {Promise}
  */
@@ -40,11 +40,17 @@ async function getProductDetail(id) {
  * @param {string} productPrice - Product price
  * @returns {Promise}
  */
-async function createProduct(sellerEmail, productName, productPrice) {
+async function createProduct(
+  sellerEmail,
+  productName,
+  productPrice,
+  productStock
+) {
   return Product.create({
     sellerEmail,
     productName,
     productPrice,
+    productStock,
   });
 }
 
@@ -57,7 +63,13 @@ async function createProduct(sellerEmail, productName, productPrice) {
  * @param {string} productPrice - Product price
  * @returns {Promise}
  */
-async function updateProduct(id, sellerEmail, productName, productPrice) {
+async function updateProduct(
+  id,
+  sellerEmail,
+  productName,
+  productPrice,
+  productStock
+) {
   return Product.updateOne(
     {
       _id: id,
@@ -67,6 +79,7 @@ async function updateProduct(id, sellerEmail, productName, productPrice) {
       $set: {
         productName,
         productPrice,
+        productStock,
       },
     }
   );

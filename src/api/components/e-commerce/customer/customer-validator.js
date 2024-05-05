@@ -61,4 +61,10 @@ module.exports = {
       product_Id: joi.string().required().label('Product ID'),
     },
   },
+
+  topUp: {
+    body: {
+      wallet: joi.number().required().label('wallet'),
+    },
+  },
 };

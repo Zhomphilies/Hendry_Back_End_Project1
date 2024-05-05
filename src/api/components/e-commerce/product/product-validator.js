@@ -11,6 +11,7 @@ module.exports = {
         .required()
         .label('Product name'),
       productPrice: joi.number().required().label('Product price'),
+      productStock: joi.number().required().label('Product stock'),
     },
   },
 
@@ -24,6 +25,7 @@ module.exports = {
         .required()
         .label('Product name'),
       productPrice: joi.number().required().label('Product price'),
+      productStock: joi.number().required().label('Product stock'),
     },
   },
 };

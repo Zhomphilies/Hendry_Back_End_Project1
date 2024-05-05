@@ -36,6 +36,8 @@ async function createCustomer(name, email, password) {
     name,
     email,
     password,
+    totalPayment: 0,
+    wallet: 0,
   });
 }
 
@@ -100,15 +102,6 @@ async function changeCustomerPassword(id, password) {
 
 /**
  * Add item to the cart
- * @param {string} id - Product Id
- * @returns {Promise}
- */
-async function getProduct(id) {
-  return;
-}
-
-/**
- * Add item to the cart
  * @param {string} id - Customer Id
  * @returns {Promise}
  */
@@ -118,7 +111,7 @@ async function addItemToCart(id, product) {
       _id: id,
     },
     {
-      $pull: {
+      $push: {
         cart: product,
       },
     }
@@ -131,15 +124,52 @@ async function addItemToCart(id, product) {
  * @returns {Promise}
  */
 async function deleteItemFromCart(id, productId) {
-  return Customer.deleteOne(
+  return Customer.updateOne(
     {
       _id: id,
     },
     {
       $pull: {
         cart: {
-          _id: productId,
+          id: productId,
         },
+      },
+    }
+  );
+}
+
+/**
+ * Delete item in the cart
+ * @param {string} id - Product Id
+ * @returns {Promise}
+ */
+async function totalPaid(id, totalPayment) {
+  return Customer.updateOne(
+    {
+      _id: id,
+    },
+    {
+      $set: {
+        totalPayment,
+      },
+    }
+  );
+}
+
+/**
+ * Top up customer wallet
+ * @param {string} id - Product Id
+ * @param {string} wallet -  Customer wallet
+ * @returns {Promise}
+ */
+async function topUp(id, wallet) {
+  return Customer.updateOne(
+    {
+      _id: id,
+    },
+    {
+      $inc: {
+        wallet,
       },
     }
   );
@@ -156,4 +186,6 @@ module.exports = {
 
   addItemToCart,
   deleteItemFromCart,
+  totalPaid,
+  topUp,
 };

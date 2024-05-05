@@ -22,6 +22,10 @@ async function getSeller() {
   return results;
 }
 
+async function getSellerEmailById(seller, id) {
+  return seller.email;
+}
+
 //====================================================================================================
 
 /**
@@ -187,4 +191,5 @@ module.exports = {
   emailIsRegistered,
   checkSellerPassword,
   changeSellerPassword,
+  getSellerEmailById,
 };

@@ -32,9 +32,7 @@ async function getCustomer(request, response, next) {
  */
 async function getCustomerDetail(request, response, next) {
   try {
-    const customer = await customersService.getCustomerDetail(
-      request.params.id
-    );
+    const customer = await customerService.getCustomerDetail(request.params.id);
 
     if (!customer) {
       throw errorResponder(errorTypes.UNPROCESSABLE_ENTITY, 'Unknown customer');
@@ -124,7 +122,7 @@ async function updateCustomer(request, response, next) {
     if (!found) {
       throw errorResponder(
         errorTypes.UNPROCESSABLE_ENTITY,
-        'Failed to create product'
+        'Email is not registered'
       );
     }
 
@@ -132,7 +130,7 @@ async function updateCustomer(request, response, next) {
     if (tokenCheck.email !== customerEmail) {
       throw errorResponder(
         errorTypes.UNPROCESSABLE_ENTITY,
-        'Failed to create produc'
+        'Token and email is not compatiblev'
       );
     }
 
@@ -306,11 +304,13 @@ async function addItemToCart(request, response, next) {
 
     const addItem = await customerService.addItemToCart(id, productId);
 
-    console.log(addItem);
     if (!addItem) {
       throw errorResponder(errorTypes.VALIDATION_ERROR, 'Failed to add item');
     }
-    return response.status(200).json({ addItem });
+
+    await customerService.totalPaid(id, productId);
+
+    return response.status(200).json({ productId });
   } catch (error) {
     return next(error);
   }
@@ -326,7 +326,7 @@ async function addItemToCart(request, response, next) {
 async function deleteItemFromCart(request, response, next) {
   try {
     const id = request.params.id;
-    const productId = request.params.product_Id;
+    const productId = request.body.product_Id;
 
     const token = request.headers.authorization.split(' ')[1];
 
@@ -361,7 +361,6 @@ async function deleteItemFromCart(request, response, next) {
     }
 
     const deleteItem = await customerService.deleteItemFromCart(id, productId);
-
     console.log(deleteItem);
     if (!deleteItem) {
       throw errorResponder(
@@ -369,7 +368,123 @@ async function deleteItemFromCart(request, response, next) {
         'Failed to delete item'
       );
     }
-    return response.status(200).json({ deleteItem });
+    return response.status(200).json({ productId });
+  } catch (error) {
+    return next(error);
+  }
+}
+
+/**
+ * Handle change customer password request
+ * @param {object} request - Express request object
+ * @param {object} response - Express response object
+ * @param {object} next - Express route middlewares
+ * @returns {object} Response object or pass an error to the next route
+ */
+async function topUp(request, response, next) {
+  try {
+    const id = request.params.id;
+    const wallet = request.body.wallet;
+
+    const token = request.headers.authorization.split(' ')[1];
+
+    const customer = await customerService.getCustomerDetail(id);
+    console.log(customer);
+    if (!customer) {
+      throw errorResponder(
+        errorTypes.VALIDATION_ERROR,
+        'no customer with that ID'
+      );
+    }
+
+    const customerEmail = await customerService.getCustomerEmailById(
+      customer,
+      id
+    );
+
+    const found = await customerService.emailIsRegistered(customerEmail);
+    if (!found) {
+      throw errorResponder(
+        errorTypes.UNPROCESSABLE_ENTITY,
+        'Failed to create product'
+      );
+    }
+
+    const tokenCheck = await solveToken(token);
+    if (tokenCheck.email !== customerEmail) {
+      throw errorResponder(
+        errorTypes.UNPROCESSABLE_ENTITY,
+        'Failed to create produc'
+      );
+    }
+
+    const topUp = await customerService.topUp(id, wallet);
+
+    console.log(topUp);
+    if (!topUp) {
+      throw errorResponder(
+        errorTypes.VALIDATION_ERROR,
+        'Failed to delete item'
+      );
+    }
+    return response.status(200).json({ id, wallet });
+  } catch (error) {
+    return next(error);
+  }
+}
+
+/**
+ * Handle change customer password request
+ * @param {object} request - Express request object
+ * @param {object} response - Express response object
+ * @param {object} next - Express route middlewares
+ * @returns {object} Response object or pass an error to the next route
+ */
+async function purchaseItemInCart(request, response, next) {
+  try {
+    const id = request.params.id;
+
+    const token = request.headers.authorization.split(' ')[1];
+
+    const customer = await customerService.getCustomerDetail(id);
+    console.log(customer);
+    if (!customer) {
+      throw errorResponder(
+        errorTypes.VALIDATION_ERROR,
+        'no customer with that ID'
+      );
+    }
+
+    const customerEmail = await customerService.getCustomerEmailById(
+      customer,
+      id
+    );
+
+    const found = await customerService.emailIsRegistered(customerEmail);
+    if (!found) {
+      throw errorResponder(
+        errorTypes.UNPROCESSABLE_ENTITY,
+        'Failed to purchase'
+      );
+    }
+
+    const tokenCheck = await solveToken(token);
+    if (tokenCheck.email !== customerEmail) {
+      throw errorResponder(
+        errorTypes.UNPROCESSABLE_ENTITY,
+        'Failed to create produc'
+      );
+    }
+
+    const purchase = await customerService.purchaseItemInCart(id);
+    if (!purchase) {
+      throw errorResponden(
+        errorTypes.UNPROCESSABLE_ENTITY,
+        'Failed to purchase'
+      );
+    }
+
+    return response.status(200).json({ id });
   } catch (error) {
     return next(error);
   }
@@ -383,6 +498,8 @@ module.exports = {
   deleteCustomer,
   changeCustomerPassword,
 
+  purchaseItemInCart,
   addItemToCart,
   deleteItemFromCart,
+  topUp,
 };

@@ -9,10 +9,6 @@ const moment = require('moment');
 // check the password anyway, so that it prevents the attacker in
 // guessing login credentials by looking at the processing time.
 
-// Because we always check the password (see above comment), we define the
-// login attempt as successful when the `user` is found (by email) and
-// the password matches.
-
 /**
  * Check username and password for login.
  * @param {string} email - Email
@@ -33,12 +29,15 @@ async function checkLoginCredentials(email, password) {
   ).toDate();
   let timeLogin = moment().toDate();
 
+  // Because we always check the password (see above comment), we define the
+  // login attempt as successful when the `user` is found (by email) and
+  // the password matches.
   const userPassword = user ? user.password : '<RANDOM_PASSWORD_FILLER>';
   const passwordChecked = await passwordMatched(password, userPassword);
   const currAttempt = await authenticationRepository.getLoginAttempt(email);
 
   if (currAttempt >= 5) {
-    const waitingTime = moment(currLoginTime).add(30, 'm').toDate();
+    const waitingTime = moment(currLoginTime).add(30, 'm  ').toDate();
     if (waitingTime - timeLogin > 0) {
       throw errorResponder(
         errorTypes.INVALID_CREDENTIALS,
@@ -77,7 +76,7 @@ async function checkLoginCredentials(email, password) {
       counterLimit,
       timeLogin
     );
-    return `${timeLogin} User ${email} gagal login. Attempt = ${counterLimit}`;
+    return `[${moment(timeLogin).format('YYYY-MM-DD HH:mm:ss')}] User ${email} gagal login. Attempt = ${counterLimit}`;
   }
 }
 

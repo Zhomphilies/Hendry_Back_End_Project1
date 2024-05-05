@@ -63,7 +63,22 @@ module.exports = (app) => {
   route.delete(
     '/:id/cart',
     authenticationMiddleware,
-    celebrate(customerValidator.addItemToCart),
-    customerControllers.addItemToCart
+    celebrate(customerValidator.deleteItemFromCart),
+    customerControllers.deleteItemFromCart
+  );
+
+  //Top up wallet
+  route.put(
+    '/:id/top-up',
+    authenticationMiddleware,
+    celebrate(customerValidator.topUp),
+    customerControllers.topUp
+  );
+
+  //Buy Item
+  route.post(
+    '/:id/purchase',
+    authenticationMiddleware,
+    customerControllers.purchaseItemInCart
   );
 };
