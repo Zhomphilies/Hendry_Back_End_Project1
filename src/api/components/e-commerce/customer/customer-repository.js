@@ -4,14 +4,11 @@ const { Customer, Product } = require('../../../../models');
 
 /**
  * Get a list of customers
- * @param {string} sort - sorting type
  * @returns {Promise}
  */
 async function getCustomer() {
   return Customer.find({});
 }
-
-//====================================================================================================
 
 /**
  * Get customer detail
@@ -25,7 +22,7 @@ async function getCustomerDetail(id) {
 //====================================================================================================
 
 /**
- * Create new customer
+ * Create new customer by make the total payment and wallet is empty
  * @param {string} name - Name
  * @param {string} email - Email
  * @param {string} password - Hashed password
@@ -103,6 +100,7 @@ async function changeCustomerPassword(id, password) {
 /**
  * Add item to the cart
  * @param {string} id - Customer Id
+ * @param {obbject} product- Product object
  * @returns {Promise}
  */
 async function addItemToCart(id, product) {
@@ -120,7 +118,8 @@ async function addItemToCart(id, product) {
 
 /**
  * Delete item in the cart
- * @param {string} id - Product Id
+ * @param {string} id - Customer ID
+ * @param {string} productId - Product Id
  * @returns {Promise}
  */
 async function deleteItemFromCart(id, productId) {
@@ -139,8 +138,9 @@ async function deleteItemFromCart(id, productId) {
 }
 
 /**
- * Delete item in the cart
+ * Update the total payment that need to pay by customer
  * @param {string} id - Product Id
+ * @param {string} totalPayment - tottal payment
  * @returns {Promise}
  */
 async function totalPaid(id, totalPayment) {

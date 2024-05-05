@@ -102,8 +102,10 @@ async function updateCustomer(request, response, next) {
     const name = request.body.name;
     const email = request.body.email;
 
+    //Chechking email and token. If the email is same with the token then the email owner can acces the function
     const token = request.headers.authorization.split(' ')[1];
 
+    //Checking if there is customer
     const customer = await customerService.getCustomerDetail(id);
     console.log(customer);
     if (!customer) {
@@ -113,11 +115,13 @@ async function updateCustomer(request, response, next) {
       );
     }
 
+    //Chechking email by using ID
     const customerEmail = await customerService.getCustomerEmailById(
       customer,
       id
     );
 
+    //Checking if the email is registered
     const found = await customerService.emailIsRegistered(customerEmail);
     if (!found) {
       throw errorResponder(
@@ -126,11 +130,12 @@ async function updateCustomer(request, response, next) {
       );
     }
 
+    //Checking the token and email
     const tokenCheck = await solveToken(token);
     if (tokenCheck.email !== customerEmail) {
       throw errorResponder(
         errorTypes.UNPROCESSABLE_ENTITY,
-        'Token and email is not compatiblev'
+        'Token and email is not compatible'
       );
     }
 
@@ -167,8 +172,11 @@ async function updateCustomer(request, response, next) {
 async function deleteCustomer(request, response, next) {
   try {
     const id = request.params.id;
+
+    //Chechking email and token. If the email is same with the token then the email owner can acces the function
     const token = request.headers.authorization.split(' ')[1];
 
+    //Chechking email by using ID
     const customer = await customerService.getCustomerDetail(id);
     console.log(customer);
     if (!customer) {
@@ -178,24 +186,27 @@ async function deleteCustomer(request, response, next) {
       );
     }
 
+    //Chechking email by using ID
     const customerEmail = await customerService.getCustomerEmailById(
       customer,
       id
     );
 
+    //Checking if the email is registered
     const found = await customerService.emailIsRegistered(customerEmail);
     if (!found) {
       throw errorResponder(
         errorTypes.UNPROCESSABLE_ENTITY,
-        'Failed to create product'
+        'Email is not registered'
       );
     }
 
+    //Checking the token and email
     const tokenCheck = await solveToken(token);
     if (tokenCheck.email !== customerEmail) {
       throw errorResponder(
         errorTypes.UNPROCESSABLE_ENTITY,
-        'Failed to create produc'
+        'Token and email is not compatible'
       );
     }
 
@@ -270,8 +281,10 @@ async function addItemToCart(request, response, next) {
     const id = request.params.id;
     const productId = request.body.product_Id;
 
+    //Chechking email and token. If the email is same with the token then the email owner can acces the function
     const token = request.headers.authorization.split(' ')[1];
 
+    //Checking if there is customer
     const customer = await customerService.getCustomerDetail(id);
     console.log(customer);
     if (!customer) {
@@ -281,24 +294,27 @@ async function addItemToCart(request, response, next) {
       );
     }
 
+    //Chechking email by using ID
     const customerEmail = await customerService.getCustomerEmailById(
       customer,
       id
     );
 
+    //Checking if the email is registered
     const found = await customerService.emailIsRegistered(customerEmail);
     if (!found) {
       throw errorResponder(
         errorTypes.UNPROCESSABLE_ENTITY,
-        'Failed to create product'
+        'Email is not registered'
       );
     }
 
+    //Checking the token and email
     const tokenCheck = await solveToken(token);
     if (tokenCheck.email !== customerEmail) {
       throw errorResponder(
         errorTypes.UNPROCESSABLE_ENTITY,
-        'Failed to create produc'
+        'Token and email is not compatible'
       );
     }
 
@@ -328,8 +344,10 @@ async function deleteItemFromCart(request, response, next) {
     const id = request.params.id;
     const productId = request.body.product_Id;
 
+    //Chechking email and token. If the email is same with the token then the email owner can acces the function
     const token = request.headers.authorization.split(' ')[1];
 
+    //Checking if there is customer
     const customer = await customerService.getCustomerDetail(id);
     console.log(customer);
     if (!customer) {
@@ -339,24 +357,27 @@ async function deleteItemFromCart(request, response, next) {
       );
     }
 
+    //Chechking email by using ID
     const customerEmail = await customerService.getCustomerEmailById(
       customer,
       id
     );
 
+    //Checking if the email is registered
     const found = await customerService.emailIsRegistered(customerEmail);
     if (!found) {
       throw errorResponder(
         errorTypes.UNPROCESSABLE_ENTITY,
-        'Failed to create product'
+        'Email is not registered'
       );
     }
 
+    //Checking the token and email
     const tokenCheck = await solveToken(token);
     if (tokenCheck.email !== customerEmail) {
       throw errorResponder(
         errorTypes.UNPROCESSABLE_ENTITY,
-        'Failed to create produc'
+        'Token and email is not compatiblev'
       );
     }
 
@@ -386,8 +407,10 @@ async function topUp(request, response, next) {
     const id = request.params.id;
     const wallet = request.body.wallet;
 
+    //Chechking email and token. If the email is same with the token then the email owner can acces the function
     const token = request.headers.authorization.split(' ')[1];
 
+    //Chechking email by using ID
     const customer = await customerService.getCustomerDetail(id);
     console.log(customer);
     if (!customer) {
@@ -397,34 +420,36 @@ async function topUp(request, response, next) {
       );
     }
 
+    //Chechking email by using ID
     const customerEmail = await customerService.getCustomerEmailById(
       customer,
       id
     );
 
+    //Checking if the email is registered
     const found = await customerService.emailIsRegistered(customerEmail);
     if (!found) {
       throw errorResponder(
         errorTypes.UNPROCESSABLE_ENTITY,
-        'Failed to create product'
+        'Email is not registered'
       );
     }
 
+    //Checking the token and email
     const tokenCheck = await solveToken(token);
     if (tokenCheck.email !== customerEmail) {
       throw errorResponder(
         errorTypes.UNPROCESSABLE_ENTITY,
-        'Failed to create produc'
+        'Token and email is not compatiblev'
       );
     }
 
     const topUp = await customerService.topUp(id, wallet);
 
-    console.log(topUp);
     if (!topUp) {
       throw errorResponder(
         errorTypes.VALIDATION_ERROR,
-        'Failed to delete item'
+        'Failed to delete top up'
       );
     }
     return response.status(200).json({ id, wallet });
@@ -444,8 +469,10 @@ async function purchaseItemInCart(request, response, next) {
   try {
     const id = request.params.id;
 
+    //Chechking email and token. If the email is same with the token then the email owner can acces the function
     const token = request.headers.authorization.split(' ')[1];
 
+    //Chechking email by using ID
     const customer = await customerService.getCustomerDetail(id);
     console.log(customer);
     if (!customer) {
@@ -455,24 +482,27 @@ async function purchaseItemInCart(request, response, next) {
       );
     }
 
+    //Chechking email by using ID
     const customerEmail = await customerService.getCustomerEmailById(
       customer,
       id
     );
 
+    //Checking if the email is registered
     const found = await customerService.emailIsRegistered(customerEmail);
     if (!found) {
       throw errorResponder(
         errorTypes.UNPROCESSABLE_ENTITY,
-        'Failed to purchase'
+        'Email is not registered'
       );
     }
 
+    //Checking the token and email
     const tokenCheck = await solveToken(token);
     if (tokenCheck.email !== customerEmail) {
       throw errorResponder(
         errorTypes.UNPROCESSABLE_ENTITY,
-        'Failed to create produc'
+        'Token and email is not compatiblev'
       );
     }
 

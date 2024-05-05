@@ -22,11 +22,15 @@ async function getSeller() {
   return results;
 }
 
+/**
+ * Get seller email by unsing ID
+ * @param {string} seller - Seller data
+ * @param {string} id - Seller ID
+ * @returns {Object}
+ */
 async function getSellerEmailById(seller, id) {
   return seller.email;
 }
-
-//====================================================================================================
 
 /**
  * Get seller detail
@@ -48,8 +52,6 @@ async function getSellerDetail(id) {
   };
 }
 
-//====================================================================================================
-
 /**
  * Create new seller
  * @param {string} name - Name
@@ -69,8 +71,6 @@ async function createSeller(name, email, password) {
 
   return true;
 }
-
-//====================================================================================================
 
 /**
  * Update existing seller
@@ -96,8 +96,6 @@ async function updateSeller(id, name, email) {
   return true;
 }
 
-//====================================================================================================
-
 /**
  * Delete seller
  * @param {string} id - Seller ID
@@ -120,8 +118,6 @@ async function deleteSeller(id) {
   return true;
 }
 
-//====================================================================================================
-
 /**
  * Check whether the email is registered
  * @param {string} email - Email
@@ -137,8 +133,6 @@ async function emailIsRegistered(email) {
   return false;
 }
 
-//====================================================================================================
-
 /**
  * Check whether the password is correct
  * @param {string} sellerId - Seller ID
@@ -149,8 +143,6 @@ async function checkSellerPassword(sellerId, password) {
   const seller = await sellerRepository.getSeller(sellerId);
   return passwordMatched(password, seller.password);
 }
-
-//====================================================================================================
 
 /**
  * Change seller password
@@ -179,8 +171,6 @@ async function changeSellerPassword(sellerId, password) {
 
   return true;
 }
-
-//====================================================================================================
 
 module.exports = {
   getSeller,

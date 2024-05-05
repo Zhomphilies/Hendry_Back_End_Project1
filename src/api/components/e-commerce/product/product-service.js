@@ -17,8 +17,6 @@ async function getSellerByEmail(sellerEmail) {
   return false;
 }
 
-//====================================================================================================
-
 /**
  * Get list of products
  * @returns {Array}
@@ -40,8 +38,6 @@ async function getProduct() {
 
   return results;
 }
-
-//====================================================================================================
 
 /**
  * Get Product detail
@@ -65,13 +61,12 @@ async function getProductDetail(id) {
   };
 }
 
-//====================================================================================================
-
 /**
  * Create new product
  * @param {string} sellerEmail - Seller email
  * @param {string} productName - Product name
  * @param {Number} productPrice - Product price
+ * @param {Number} productStock - Product stock
  * @returns {boolean}
  */
 async function createProduct(
@@ -94,14 +89,13 @@ async function createProduct(
   return true;
 }
 
-//====================================================================================================
-
 /**
  * Update existing product
  * @param {string} id - Product ID
  * @param {string} sellerEmail - Seller email
  * @param {string} productName - Product name
  * @param {Number} productPrice - Product price
+ * @param {Number} productStock - Product stock
  * @returns {boolean}
  */
 
@@ -134,11 +128,10 @@ async function updateProduct(
   return true;
 }
 
-//====================================================================================================
-
 /**
- * Delete product
+ * Delete product by
  * @param {string} id - Product ID
+ * @param {string} sellerEmail - sellerEmail
  * @returns {boolean}
  */
 async function deleteProduct(id, sellerEmail) {
@@ -157,8 +150,6 @@ async function deleteProduct(id, sellerEmail) {
 
   return true;
 }
-
-//====================================================================================================
 
 module.exports = {
   getSellerByEmail,

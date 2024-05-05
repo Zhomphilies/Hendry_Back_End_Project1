@@ -1,7 +1,5 @@
 const { User } = require('../../../models');
 
-//====================================================================================================
-
 /**
  * Get a list of users
  * @param {string} sort - sorting type by asc or dsc
@@ -38,18 +36,14 @@ async function getUsers(sort) {
   return sorts;
 }
 
-//====================================================================================================
-
 /**
- * Get user detail
+ * Get user detail by using id
  * @param {string} id - User ID
  * @returns {Promise}
  */
 async function getUser(id) {
   return User.findById(id);
 }
-
-//====================================================================================================
 
 /**
  * Create new user
@@ -65,8 +59,6 @@ async function createUser(name, email, password) {
     password,
   });
 }
-
-//====================================================================================================
 
 /**
  * Update existing user
@@ -89,8 +81,6 @@ async function updateUser(id, name, email) {
   );
 }
 
-//====================================================================================================
-
 /**
  * Delete a user
  * @param {string} id - User ID
@@ -99,8 +89,6 @@ async function updateUser(id, name, email) {
 async function deleteUser(id) {
   return User.deleteOne({ _id: id });
 }
-
-//====================================================================================================
 
 /**
  * Get user by email to prevent duplicate email
@@ -111,8 +99,6 @@ async function getUserByEmail(email) {
   return User.findOne({ email });
 }
 
-//====================================================================================================
-
 /**
  * Update user password
  * @param {string} id - User ID
@@ -122,8 +108,6 @@ async function getUserByEmail(email) {
 async function changePassword(id, password) {
   return User.updateOne({ _id: id }, { $set: { password } });
 }
-
-//====================================================================================================
 
 module.exports = {
   getUsers,

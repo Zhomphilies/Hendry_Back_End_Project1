@@ -1,7 +1,5 @@
 const { Seller } = require('../../../../models');
 
-//====================================================================================================
-
 /**
  * Get a list of sellers
  * @param {string} sort - sorting type
@@ -10,9 +8,6 @@ const { Seller } = require('../../../../models');
 async function getSeller() {
   return Seller.find({});
 }
-
-//====================================================================================================
-
 /**
  * Get seller detail
  * @param {string} id - Seller ID
@@ -21,8 +16,6 @@ async function getSeller() {
 async function getSellerDetail(id) {
   return Seller.findById(id);
 }
-
-//====================================================================================================
 
 /**
  * Create new seller
@@ -38,8 +31,6 @@ async function createSeller(name, email, password) {
     password,
   });
 }
-
-//====================================================================================================
 
 /**
  * Update existing seller
@@ -62,8 +53,6 @@ async function updateSeller(id, name, email) {
   );
 }
 
-//====================================================================================================
-
 /**
  * Delete a seller
  * @param {string} id - Seller ID
@@ -72,8 +61,6 @@ async function updateSeller(id, name, email) {
 async function deleteSeller(id) {
   return Seller.deleteOne({ _id: id });
 }
-
-//====================================================================================================
 
 /**
  * Get seller by email to prevent duplicate email
@@ -84,8 +71,6 @@ async function getSellerByEmail(email) {
   return Seller.findOne({ email });
 }
 
-//====================================================================================================
-
 /**
  * Update seller password
  * @param {string} id - Seller ID
@@ -95,8 +80,6 @@ async function getSellerByEmail(email) {
 async function changeSellerPassword(id, password) {
   return Seller.updateOne({ _id: id }, { $set: { password } });
 }
-
-//====================================================================================================
 
 module.exports = {
   getSeller,

@@ -7,7 +7,6 @@ const {
 
 /**
  * Get list of customers
- * @param {string} id - Customer ID
  * @returns {Object}
  */
 async function getCustomer() {
@@ -28,8 +27,6 @@ async function getCustomer() {
 
   return results;
 }
-
-//====================================================================================================
 
 /**
  * Get customer detail
@@ -54,19 +51,35 @@ async function getCustomerDetail(id) {
   };
 }
 
+/**
+ * Get customer email
+ * @param {object} customer - Customer object
+ * @param {string} id - Customer ID
+ * @returns {string}
+ */
 async function getCustomerEmailById(customer, id) {
   return customer.email;
 }
 
+/**
+ * Get customer total paymentt
+ * @param {object} customer - Customer object
+ * @param {string} id - Customer ID
+ * @returns {Object}
+ */
 async function getCustomerTotalPayment(customer, id) {
   return customer.totalPayment;
 }
 
+/**
+ * Get customer product price
+ * @param {object} product - Product object
+ * @param {string} id - Customer ID
+ * @returns {Object}
+ */
 async function getProductPrice(product, id) {
   return product.productPrice;
 }
-
-//====================================================================================================
 
 /**
  * Create new customer
@@ -87,8 +100,6 @@ async function createCustomer(name, email, password) {
 
   return true;
 }
-
-//====================================================================================================
 
 /**
  * Update existing customer
@@ -113,8 +124,6 @@ async function updateCustomer(id, name, email) {
 
   return true;
 }
-
-//====================================================================================================
 
 /**
  * Delete customer
@@ -198,11 +207,16 @@ async function changeCustomerPassword(customerId, password) {
   return true;
 }
 
-//====================================================================================================
-
+/**
+ * Adding item to user cart
+ * @param {string} customerId - Customer ID
+ * @param {string} productId - Product ID
+ * @returns {boolean}
+ */
 async function addItemToCart(customerId, productId) {
   const customer = await customerRepository.getCustomerDetail(customerId);
 
+  // Check if customer not found
   if (!customer) {
     return null;
   }
@@ -222,10 +236,17 @@ async function addItemToCart(customerId, productId) {
   return true;
 }
 
+/**
+ * Deleeting item to user cart
+ * @param {string} id - Customer ID
+ * @param {string} productId - Product ID
+ * @returns {boolean}
+ */
 async function deleteItemFromCart(id, productId) {
   try {
     const customer = await customerRepository.getCustomerDetail(id);
 
+    // Check if customer not found
     if (!customer) {
       return null;
     }
@@ -234,14 +255,17 @@ async function deleteItemFromCart(id, productId) {
 
     const product = await getProductDetail(productId);
 
+    // Check if product not found
     if (!product) {
       return null;
     }
 
     let total = 0;
 
+    // Get the total payment
     const currPayment = await getCustomerTotalPayment(customer, id);
 
+    // Make loop to get total price
     for (let i = 0; i < cart.length; i += 1) {
       const products = cart[i];
 
@@ -257,6 +281,7 @@ async function deleteItemFromCart(id, productId) {
     const totalPayment = currPayment - total;
 
     try {
+      //input the total payment that user need to pay
       await customerRepository.totalPaid(id, totalPayment);
     } catch (err) {
       return null;
@@ -267,19 +292,28 @@ async function deleteItemFromCart(id, productId) {
   }
 }
 
+/**
+ * Update total payment
+ * @param {string} id - Customer ID
+ * @param {string} productId - Product ID
+ * @returns {boolean}
+ */
 async function totalPaid(id, productId) {
   const customer = await customerRepository.getCustomerDetail(id);
 
+  // Check if customer not found
   if (!customer) {
     return null;
   }
 
   const product = await getProductDetail(productId);
 
+  // Check if customer not found
   if (!product) {
     return null;
   }
 
+  // Getting current payment and price to get total payment
   const currPayment = await getCustomerTotalPayment(customer, id);
   const productPrice = await getProductPrice(product, productId);
   const totalPayment = currPayment + productPrice;
@@ -292,9 +326,16 @@ async function totalPaid(id, productId) {
   return true;
 }
 
+/**
+ * Top up or change the value of the pockey
+ * @param {string} id - Customer ID
+ * @param {string} wallet - Customer Wallet
+ * @returns {boolean}
+ */
 async function topUp(id, wallet) {
   const customer = await customerRepository.getCustomerDetail(id);
 
+  // Check if customer not found
   if (!customer) {
     return null;
   }
@@ -307,16 +348,25 @@ async function topUp(id, wallet) {
   return true;
 }
 
+/**
+ * Purchase item from the customer cart and make the cart become empty
+ * @param {string} id - Customer ID
+ * @param {string} wallet - Customer Wallet
+ * @returns {boolean}
+ */
 async function purchaseItemInCart(id) {
   const customer = await customerRepository.getCustomerDetail(id);
 
+  // Check if customer not found
   if (!customer) {
     return null;
   }
 
+  // Getting customer total payment and all item in the cutomer cart
   const totalPayment = customer.totalPayment;
   const productInCart = customer.cart;
 
+  // Make condition pay
   if (totalPayment > customer.wallet) {
     return null;
   } else if (totalPayment <= customer.wallet) {
@@ -324,16 +374,19 @@ async function purchaseItemInCart(id) {
     await customerRepository.topUp(id, paid);
   }
 
+  //Check if there is no product inside
   if (productInCart === null || productInCart === undefined) {
     return null;
   }
 
+  //Make loop to reset the cart and reduxe item stock
   for (let i = 0; i < customer.cart.length; i += 1) {
     const cartItem = customer.cart[i];
     const product = await getProductDetail(cartItem.id);
     await deleteItemFromCart(id, cartItem.id);
     product.productStock = product.productStock - 1;
 
+    //If the produk is empty
     if (product.productStock === 0) {
       return null;
     }

@@ -9,18 +9,13 @@ async function getSellerByEmail(sellerEmail) {
   return Seller.findOne({ email: sellerEmail });
 }
 
-//====================================================================================================
-
 /**
  * Get products
- * @param {string} id - Product ID
  * @returns {Promise}
  */
 async function getProduct() {
   return Product.find({});
 }
-
-//====================================================================================================
 
 /**
  * Get product detail
@@ -38,6 +33,7 @@ async function getProductDetail(id) {
  * @param {string} sellerEmail - Seller email
  * @param {string} productName - Product name
  * @param {string} productPrice - Product price
+ * @param {string} productStock - Product stock
  * @returns {Promise}
  */
 async function createProduct(
@@ -59,8 +55,10 @@ async function createProduct(
 /**
  * Update existing product
  * @param {string} id - Product ID
+ * @param {string} sellerEmail - Seller email
  * @param {string} productName - Product name
  * @param {string} productPrice - Product price
+ * @param {string} productStock - Product stock
  * @returns {Promise}
  */
 async function updateProduct(
@@ -90,6 +88,7 @@ async function updateProduct(
 /**
  * Delete a product
  * @param {string} id - Product ID
+ * @param {string} sellerEmail - Seller email
  * @returns {Promise}
  */
 async function deleteProduct(id, sellerEmail) {

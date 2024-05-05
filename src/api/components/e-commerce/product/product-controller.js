@@ -23,8 +23,6 @@ async function getProduct(request, response, next) {
   }
 }
 
-//====================================================================================================
-
 /**
  * Handle get product detail request by using ID
  * @param {object} request - Express request object
@@ -48,8 +46,6 @@ async function getProductDetail(request, response, next) {
   }
 }
 
-//====================================================================================================
-
 /**
  * Handle create product request
  * @param {object} request - Express request object
@@ -63,8 +59,11 @@ async function createProduct(request, response, next) {
     const productName = request.body.productName;
     const productPrice = request.body.productPrice;
     const productStock = request.body.productStock;
+
+    //Chechking email and token. If the email is same with the token then the email owner can acces the function
     const token = request.headers.authorization.split(' ')[1];
 
+    //Checking if there is seller
     const found = await productService.getSellerByEmail(sellerEmail);
     if (!found) {
       throw errorResponder(
@@ -73,6 +72,7 @@ async function createProduct(request, response, next) {
       );
     }
 
+    //Checking the token and email
     const tokenCheck = await solveToken(token);
     if (tokenCheck.email !== sellerEmail) {
       throw errorResponder(
@@ -81,6 +81,7 @@ async function createProduct(request, response, next) {
       );
     }
 
+    //Try to make product
     const success = await productService.createProduct(
       sellerEmail,
       productName,
@@ -102,8 +103,6 @@ async function createProduct(request, response, next) {
   }
 }
 
-//====================================================================================================
-
 /**
  * Handle update product request
  * @param {object} request - Express request object
@@ -118,13 +117,17 @@ async function updateProduct(request, response, next) {
     const productName = request.body.productName;
     const productPrice = request.body.productPrice;
     const productStock = request.body.productStock;
+
+    //Chechking email and token. If the email is same with the token then the email owner can acces the function
     const token = request.headers.authorization.split(' ')[1];
 
+    //Checking if there is seller
     const found = await productService.getSellerByEmail(sellerEmail);
     if (!found) {
       throw errorResponder(errorTypes.NOT_FOUND, 'Seller email not found');
     }
 
+    //Checking the token and email
     const tokenCheck = await solveToken(token);
     if (tokenCheck.email !== sellerEmail) {
       throw errorResponder(
@@ -133,6 +136,7 @@ async function updateProduct(request, response, next) {
       );
     }
 
+    //Try to update product
     const success = await productService.updateProduct(
       id,
       sellerEmail,
@@ -153,8 +157,6 @@ async function updateProduct(request, response, next) {
   }
 }
 
-//====================================================================================================
-
 /**
  * Handle delete product request
  * @param {object} request - Express request object
@@ -166,13 +168,17 @@ async function deleteProduct(request, response, next) {
   try {
     const id = request.params.id;
     const sellerEmail = request.body.sellerEmail;
+
+    //Chechking email and token. If the email is same with the token then the email owner can acces the function
     const token = request.headers.authorization.split(' ')[1];
 
+    //Checking if there is seller
     const found = await productService.getSellerByEmail(sellerEmail);
     if (!found) {
       throw errorResponder(errorTypes.NOT_FOUND, 'Seller email not found');
     }
 
+    //Checking the token and email
     const tokenCheck = await solveToken(token);
     if (tokenCheck.email !== sellerEmail) {
       throw errorResponder(
@@ -181,6 +187,7 @@ async function deleteProduct(request, response, next) {
       );
     }
 
+    //Try to delete product
     const success = await productService.deleteProduct(id, sellerEmail);
     if (!success) {
       throw errorResponder(

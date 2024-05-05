@@ -9,10 +9,6 @@ const moment = require('moment');
 // check the password anyway, so that it prevents the attacker in
 // guessing login credentials by looking at the processing time.
 
-// Because we always check the password (see above comment), we define the
-// login attempt as successful when the `customer` is found (by email) and
-// the password matches.
-
 /**
  * Check username and password for login.
  * @param {string} email - Email
@@ -34,6 +30,9 @@ async function checkLoginCredentials(email, password) {
   ).toDate();
   let timeLogin = moment().toDate();
 
+  // Because we always check the password (see above comment), we define the
+  // login attempt as successful when the `customer` is found (by email) and
+  // the password matches.
   const customerPassword = customer
     ? customer.password
     : '<RANDOM_PASSWORD_FILLER>';
@@ -41,14 +40,19 @@ async function checkLoginCredentials(email, password) {
   const currAttempt =
     await customerAuthenticationRepository.getLoginAttempt(email);
 
+  //Make the consdition to make limit for keeping login to much
   if (currAttempt >= 5) {
+    //Adding 30 minutes
     const waitingTime = moment(currLoginTime).add(30, 'm').toDate();
+    //After 30 minutes customer can try rto login again
     if (waitingTime - timeLogin > 0) {
       throw errorResponder(
         errorTypes.INVALID_CREDENTIALS,
         'Forbidden: Too many failed login attempts'
       );
-    } else {
+    }
+    //Condition where waiting time is already 0 or even smaller then 0, reseting attempt
+    else {
       attempt = 0;
       await customerAuthenticationRepository.setLoginAttempt(
         email,
@@ -59,6 +63,7 @@ async function checkLoginCredentials(email, password) {
     }
   }
 
+  //Condition there is customer and the password is true
   if (customer && passwordChecked) {
     counterLimit = 0;
     const createAuthentication =
@@ -78,7 +83,9 @@ async function checkLoginCredentials(email, password) {
       customer_id: customer.id,
       token: generateToken(customer.email, customer.id),
     };
-  } else {
+  }
+  //Condition where there is no customer and the password is false
+  else {
     attempt = 1;
     counterLimit = currAttempt + attempt;
     const createAuthentication =

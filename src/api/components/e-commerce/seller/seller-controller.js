@@ -102,8 +102,10 @@ async function updateSeller(request, response, next) {
     const name = request.body.name;
     const email = request.body.email;
 
+    //Chechking email and token. If the email is same with the token then the email owner can acces the function
     const token = request.headers.authorization.split(' ')[1];
 
+    //Checking if there is seller
     const seller = await sellerService.getSellerDetail(id);
     console.log(seller);
     if (!seller) {
@@ -113,8 +115,10 @@ async function updateSeller(request, response, next) {
       );
     }
 
+    //Chechking email by using ID
     const sellerEmail = await sellerService.getSellerEmailById(seller, id);
 
+    //Checking if the email is registered
     const found = await sellerService.emailIsRegistered(sellerEmail);
     if (!found) {
       throw errorResponder(
@@ -123,11 +127,12 @@ async function updateSeller(request, response, next) {
       );
     }
 
+    //Checking the token and email
     const tokenCheck = await solveToken(token);
     if (tokenCheck.email !== sellerEmail) {
       throw errorResponder(
         errorTypes.UNPROCESSABLE_ENTITY,
-        'Token and email is not compatiblev'
+        'Token and email is not compatible'
       );
     }
 
@@ -165,10 +170,11 @@ async function deleteSeller(request, response, next) {
   try {
     const id = request.params.id;
 
+    //Chechking email and token. If the email is same with the token then the email owner can acces the function
     const token = request.headers.authorization.split(' ')[1];
 
+    //Checking if there is seller
     const seller = await sellerService.getSellerDetail(id);
-    console.log(seller);
     if (!seller) {
       throw errorResponder(
         errorTypes.VALIDATION_ERROR,
@@ -176,8 +182,10 @@ async function deleteSeller(request, response, next) {
       );
     }
 
+    //Chechking email by using ID
     const sellerEmail = await sellerService.getSellerEmailById(seller, id);
 
+    //Checking if the email is registered
     const found = await sellerService.emailIsRegistered(sellerEmail);
     if (!found) {
       throw errorResponder(
@@ -186,11 +194,12 @@ async function deleteSeller(request, response, next) {
       );
     }
 
+    //Checking the token and email
     const tokenCheck = await solveToken(token);
     if (tokenCheck.email !== sellerEmail) {
       throw errorResponder(
         errorTypes.UNPROCESSABLE_ENTITY,
-        'Token and email is not compatiblev'
+        'Token and email is not compatible'
       );
     }
 

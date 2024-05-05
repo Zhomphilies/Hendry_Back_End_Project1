@@ -36,20 +36,26 @@ async function checkLoginCredentials(email, password) {
   const passwordChecked = await passwordMatched(password, userPassword);
   const currAttempt = await authenticationRepository.getLoginAttempt(email);
 
+  //Make the consdition to make limit for keeping login to much
   if (currAttempt >= 5) {
+    //Adding 30 minutes
     const waitingTime = moment(currLoginTime).add(30, 'm  ').toDate();
+    //After 30 minutes customer can try rto login again
     if (waitingTime - timeLogin > 0) {
       throw errorResponder(
         errorTypes.INVALID_CREDENTIALS,
         'Forbidden: Too many failed login attempts'
       );
-    } else {
+    }
+    //Condition where waiting time is already 0 or even smaller then 0, reseting attempt
+    else {
       attempt = 0;
       await authenticationRepository.setLoginAttempt(email, attempt, timeLogin);
       return 'bisa mencoba login kembali karena sudah lebih dari 30 menit sejak pengenaan limit. Attempt di-reset kembali ke 0';
     }
   }
 
+  //Condition there is customer and the password is true
   if (user && passwordChecked) {
     counterLimit = 0;
     const createAuthentication =
@@ -66,7 +72,9 @@ async function checkLoginCredentials(email, password) {
       user_id: user.id,
       token: generateToken(user.email, user.id),
     };
-  } else {
+  }
+  //Condition where there is no customer and the password is false
+  else {
     attempt = 1;
     counterLimit = currAttempt + attempt;
     const createAuthentication =
