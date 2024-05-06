@@ -10,7 +10,7 @@ const { hashPassword, passwordMatched } = require('../../../utils/password');
  * @returns {Object}
  */
 async function getUsers(pageNum, pageSize, search, sort) {
-  const users = await usersRepository.getUsersBySearch(search);
+  const users = await usersRepository.getUsers(sort);
 
   //Input every data inside the array
   const results = [];
@@ -24,11 +24,10 @@ async function getUsers(pageNum, pageSize, search, sort) {
   }
 
   //Calling getUsersBySearch function and getUsersByPage function
-  const searchedData = await getUsersBySearch(results, search);
-  const sortedData = await usersRepository.getUserBySort(searchedData, sort);
-  const pagination = await getUsersByPage(sortedData, pageNum, pageSize);
+  const printOut1 = await getUsersBySearch(results, search);
+  const printOut2 = await getUsersByPage(printOut1, pageNum, pageSize);
 
-  return pagination;
+  return printOut2;
 }
 
 /**
