@@ -1,5 +1,45 @@
 const { User } = require('../../../models');
 
+async function getUserBySort(data, sort) {
+  const [filterName, sortOrder] = sort.split(':');
+  let sorting;
+
+  if ((sort !== null && filterName === 'email') || filterName === 'name') {
+    return function (a, b) {
+      if (sortOrder === 'desc') {
+        if (a[fieldName] > b[fieldName]) {
+          sorting = -1;
+        } else {
+          sorting = 1;
+        }
+      } else if (sortOrder === 'asc') {
+        if (a[fieldName] > b[fieldName]) {
+          sorting = 1;
+        } else {
+          sorting = -1;
+        }
+      } else {
+        fieldName = 'email';
+        if (a[fieldName] > b[fieldName]) {
+          sorting = 1;
+        } else {
+          sorting = -1;
+        }
+      }
+      return data.sort(sorting);
+    };
+  } else {
+    return function (a, b) {
+      fieldName = 'email';
+      if (a[fieldName] > b[fieldName]) {
+        sorting = 1;
+      } else {
+        sorting = -1;
+      }
+      return data.sort(sorting);
+    };
+  }
+}
 /**
  * Get a list of users
  * @param {string} sort - sorting type by asc or dsc
@@ -117,4 +157,6 @@ module.exports = {
   deleteUser,
   getUserByEmail,
   changePassword,
+
+  getUserBySort,
 };
